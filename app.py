@@ -7,13 +7,14 @@ from datetime import datetime
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Patient Plus - Audit National", layout="wide", initial_sidebar_state="collapsed")
 
-# --- INITIALISATION DES VARIABLES ---
+# --- INITIALISATION ---
 if 'page' not in st.session_state: st.session_state.page = "Accueil"
 if 'investigateur' not in st.session_state: st.session_state.investigateur = None
+if 'admin_auth' not in st.session_state: st.session_state.admin_auth = False
 
 def changer_page(nom): st.session_state.page = nom
 
-# --- DONNÉES NATIONALES ---
+# --- DONNÉES ---
 data_cameroun = {
     "Adamaoua": ["Hôpital Régional de Ngaoundéré", "Hôpital de District de Tibati"],
     "Centre": ["Hôpital Général de Yaoundé", "Hôpital Central de Yaoundé", "CHU de Yaoundé", "Hôpital Gynéco-Obstétrique"],
@@ -30,47 +31,55 @@ data_cameroun = {
 # --- DESIGN PROFESSIONNEL (CSS) ---
 st.markdown("""
     <style>
-    /* Image de fond de l'Hôpital Général */
+    /* Fond d'écran Hôpital Général */
     .stApp {
-        background: linear-gradient(rgba(0, 43, 92, 0.8), rgba(0, 43, 92, 0.8)), 
-                    url('https://upload.wikimedia.org/wikipedia/commons/6/6a/H%C3%B4pital_G%C3%A9n%C3%A9ral_de_Yaound%C3%A9.jpg');
+        background: linear-gradient(rgba(0, 43, 92, 0.85), rgba(0, 43, 92, 0.85)), 
+                    url('https://leconomiste.cm/wp-content/uploads/2022/08/Hôpital-général-de-Yaoundé.jpg');
         background-size: cover; background-attachment: fixed; color: white;
     }
 
-    /* Bulles d'info en haut */
-    .info-card {
-        background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 20px; 
-        color: #1a1a1a; margin-bottom: 20px; border-left: 10px solid #e1395f;
-    }
-
-    /* Style des cartes de navigation (Bulles cliquables) */
-    .stButton>button {
+    /* Grandes Bulles de Navigation (Boutons stylisés) */
+    .stButton > button {
+        height: 250px !important;
+        width: 100% !important;
         background-color: rgba(255, 255, 255, 0.1) !important;
         color: white !important;
         border: 2px solid white !important;
-        border-radius: 20px !important;
-        height: 150px !important;
-        font-size: 24px !important;
+        border-radius: 25px !important;
+        font-size: 30px !important;
         font-weight: bold !important;
-        transition: 0.3s !important;
-        text-transform: uppercase;
+        transition: 0.4s !important;
     }
-    .stButton>button:hover {
+    .stButton > button:hover {
         background-color: #e1395f !important;
         border-color: #e1395f !important;
-        transform: translateY(-5px);
+        transform: scale(1.02);
     }
 
-    /* Boites blanches pour formulaires */
-    .white-container {
-        background-color: white; padding: 30px; border-radius: 20px; color: #1a1a1a;
+    /* Style spécifique pour le bouton RETOUR (Petit et discret) */
+    div[data-testid="stForm"] .stButton > button, 
+    .back-btn-container .stButton > button {
+        height: 40px !important;
+        width: auto !important;
+        font-size: 14px !important;
+        padding: 0 20px !important;
+        border-radius: 5px !important;
+        background-color: transparent !important;
     }
+
+    /* Cartes d'info accueil */
+    .info-card {
+        background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 20px; 
+        color: #1a1a1a; margin-bottom: 20px; border-left: 10px solid #e1395f;
+    }
+
+    .white-box { background-color: white; padding: 30px; border-radius: 20px; color: #1a1a1a; }
     label { color: white !important; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- BASE DE DONNÉES ---
-def get_connection(): return sqlite3.connect('audit_national_v9.db', check_same_thread=False)
+def get_connection(): return sqlite3.connect('audit_v10_final.db', check_same_thread=False)
 
 def init_db():
     conn = get_connection()
@@ -87,111 +96,110 @@ init_db()
 
 # --- PAGE 1 : ACCUEIL ---
 if st.session_state.page == "Accueil":
-    st.markdown("<h1 style='text-align:center;'>PATIENT PLUS</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; font-size:22px;'>Cette application a pour but d'améliorer la qualité du traitement de service dans nos services d'urgence et hospitaliers du pays.</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; font-size:60px;'>PATIENT PLUS</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:24px; padding: 0 100px;'>Cette application améliore la qualité du traitement dans les services d'urgence du Cameroun.</p>", unsafe_allow_html=True)
 
-    # 1. Dashboard d'Analyse (Calculé automatiquement)
+    # Dashboard de synthèse sur l'accueil
     conn = get_connection()
     df = pd.read_sql_query("SELECT * FROM rapports", conn)
     conn.close()
 
     if not df.empty:
-        st.markdown("### Analyse Descriptive Globale")
         c1, c2, c3 = st.columns(3)
         c1.metric("Audits Complétés", len(df))
-        c2.metric("Moyenne Attente", f"{round(df['attente'].mean(), 1)} min")
-        c3.metric("Régions Audités", df['region'].nunique())
-        
-        # Graphique résumé
-        fig = px.bar(df.groupby('region').size().reset_index(name='Nombre'), x='region', y='Nombre', template="plotly_dark", title="Répartition des audits par région")
-        st.plotly_chart(fig, use_container_width=True)
+        c2.metric("Attente Moyenne", f"{round(df['attente'].mean(), 1)} min")
+        c3.metric("Régions", df['region'].nunique())
 
-    # 2. Bulles d'informations terrain
+    # Bulles d'info
+    st.markdown("<br>", unsafe_allow_html=True)
     col_a, col_b = st.columns(2)
     with col_a:
-        st.markdown('<div class="info-card"><h4>Hôpitaux Publics</h4><p>Le Cameroun compte 172 hôpitaux publics. Seuls 48% remplissent les critères de performance.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="info-card"><h4>Surcharge Hospitalière</h4><p>Le Cameroun compte 172 hôpitaux publics. La performance globale est estimée à 48%.</p></div>', unsafe_allow_html=True)
     with col_b:
-        st.markdown('<div class="info-card"><h4>Services Maternité</h4><p>35,9% des accouchements se font hors milieu médical, impactant la sécurité sanitaire.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="info-card"><h4>Maternité & Soins</h4><p>35,9% des accouchements se font hors milieu assisté, un défi majeur pour la santé néonatale.</p></div>', unsafe_allow_html=True)
 
-    # 3. Navigation par Bulles (Boutons stylisés en Cartes)
-    st.markdown("<h2 style='text-align:center;'>Naviguer dans l'application</h2>", unsafe_allow_html=True)
+    # GRANDES BULLES DE NAVIGATION (Pas de petits boutons)
+    st.markdown("<br><br>", unsafe_allow_html=True)
     nav1, nav2, nav3 = st.columns(3)
     with nav1:
         st.button("📝 AUDIT PATIENT", on_click=lambda: changer_page("Audit"))
     with nav2:
         st.button("🔐 ESPACE ADMIN", on_click=lambda: changer_page("Admin"))
     with nav3:
-        st.button("ℹ️ INFORMATIONS", on_click=lambda: changer_page("Infos"))
+        st.button("ℹ️ INFOS PROJET", on_click=lambda: changer_page("Infos"))
 
 # --- PAGE 2 : AUDIT PATIENT ---
 elif st.session_state.page == "Audit":
+    st.markdown('<div class="back-btn-container">', unsafe_allow_html=True)
     st.button("⬅ Retour", on_click=lambda: changer_page("Accueil"))
-    st.header("Formulaire d'Audit National")
+    st.markdown('</div>', unsafe_allow_html=True)
     
-    if st.session_state.investigateur:
-        st.info(f"Audit supervisé par l'enquêteur : {st.session_state.investigateur['nom']}")
-
+    st.header("Formulaire d'Audit National")
     with st.form("audit_form"):
         c1, c2 = st.columns(2)
-        nom = c1.text_input("Nom de famille")
-        prenom = c2.text_input("Prénom")
-        age = c1.number_input("Âge", 0, 110, 25)
-        email = c2.text_input("Email de contact")
-        
-        reg = st.selectbox("Région de résidence", list(data_cameroun.keys()))
-        hop = st.selectbox("Hôpital audité", data_cameroun[reg])
-        motif = st.text_area("Motif de la consultation (Souffrances constatées)")
-        
-        attente = st.slider("Temps d'attente aux urgences (min)", 0, 300, 30)
+        nom, prenom = c1.text_input("Nom"), c2.text_input("Prénom")
+        email, age = c1.text_input("Email"), c2.number_input("Âge", 0, 110, 25)
+        reg = st.selectbox("Région", list(data_cameroun.keys()))
+        hop = st.selectbox("Hôpital", data_cameroun[reg])
+        motif = st.text_area("Motif de consultation")
+        attente = st.slider("Attente (min)", 0, 300, 30)
         
         ci, cm = st.columns(2)
         e_inf = ci.select_slider("Note Infirmières", options=["1", "2", "3", "4", "5"])
         j_inf = ci.text_area("Justification (Infirmières)")
         e_med = cm.select_slider("Note Médecins", options=["1", "2", "3", "4", "5"])
         j_med = cm.text_area("Justification (Médecins)")
-        
-        sug = st.text_area("Quelles mesures concrètes préconisez-vous pour améliorer le service ?")
+        sug = st.text_area("Suggestions d'amélioration")
 
         if st.form_submit_button("VALIDER L'AUDIT"):
             conn = get_connection()
             c = conn.cursor()
-            c.execute('''INSERT INTO rapports (nom, prenom, age, email, region, hopital, motif, attente, 
-                        eval_inf, justif_inf, eval_med, justif_med, suggestions, date_soumission) 
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', 
+            c.execute("INSERT INTO rapports (nom, prenom, age, email, region, hopital, motif, attente, eval_inf, justif_inf, eval_med, justif_med, suggestions, date_soumission) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
                      (nom, prenom, age, email, reg, hop, motif, attente, e_inf, j_inf, e_med, j_med, sug, datetime.now()))
             conn.commit()
             conn.close()
-            st.success("Données envoyées. Merci de votre contribution.")
+            st.success("Données envoyées.")
             changer_page("Accueil")
 
 # --- PAGE 3 : ESPACE ENQUÊTEUR ---
 elif st.session_state.page == "Admin":
+    st.markdown('<div class="back-btn-container">', unsafe_allow_html=True)
     st.button("⬅ Retour", on_click=lambda: changer_page("Accueil"))
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    tab1, tab2 = st.tabs(["👤 Création Compte", "📊 Accès Résultats"])
     
-    tab_compte, tab_resultats = st.tabs(["👤 Créer un compte", "📊 Résultats de l'Audit"])
-    
-    with tab_compte:
-        st.markdown("<div class='white-container'>", unsafe_allow_html=True)
-        st.subheader("Identification de l'Enquêteur")
-        with st.form("admin_account"):
-            nom_e = st.text_input("Nom complet de l'enquêteur")
-            email_e = st.text_input("Adresse Email professionnelle")
-            job_e = st.text_input("Poste / Institution")
-            if st.form_submit_button("CRÉER MON PROFIL ENQUÊTEUR"):
-                st.session_state.investigateur = {"nom": nom_e, "email": email_e}
-                st.success("Compte Enquêteur activé pour cet audit.")
+    with tab1:
+        st.markdown("<div class='white-box'>", unsafe_allow_html=True)
+        with st.form("acc"):
+            n_e = st.text_input("Nom Enquêteur")
+            e_e = st.text_input("Email Professionnel")
+            if st.form_submit_button("VALIDER LE COMPTE"):
+                st.session_state.investigateur = n_e
+                st.success("Compte Enquêteur activé.")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    with tab_resultats:
-        pwd = st.text_input("Mot de passe de sécurité", type="password")
-        if pwd == "admin123":
+    with tab2:
+        pwd = st.text_input("Mot de passe de l'audit", type="password")
+        col_v1, col_v2 = st.columns([1, 4])
+        if col_v1.button("VALIDER"):
+            if pwd == "admin123":
+                st.session_state.admin_auth = True
+                st.success("Accès autorisé.")
+            else: st.error("Incorrect")
+            
+        if st.session_state.admin_auth:
             conn = get_connection()
             df = pd.read_sql_query("SELECT * FROM rapports", conn)
             conn.close()
-            st.write(df)
-            st.download_button("Télécharger les données (CSV)", df.to_csv(), "audit_extract.csv")
+            st.dataframe(df)
+            if st.button("RETOURNER À L'INTERFACE D'AUDIT"):
+                st.session_state.admin_auth = False
+                changer_page("Audit")
 
 # --- PAGE 4 : INFOS ---
 elif st.session_state.page == "Infos":
+    st.markdown('<div class="back-btn-container">', unsafe_allow_html=True)
     st.button("⬅ Retour", on_click=lambda: changer_page("Accueil"))
-    st.markdown("<div class='white-container'><h3>À propos de Patient Plus</h3><p>Ce système centralise les avis des citoyens pour orienter les réformes du système de santé au Cameroun.</p></div>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("<div class='white-box'><h3>À propos</h3><p>Patient Plus est une plateforme d'audit citoyen pour la santé nationale au Cameroun.</p></div>", unsafe_allow_html=True)
