@@ -1,115 +1,76 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import sqlite3
-from datetime import datetime
-
-# --- CONFIGURATION ---
-st.set_page_config(page_title="Patient Plus - Audit National", layout="wide", initial_sidebar_state="collapsed")
-
-# --- INITIALISATION ---
-if 'page' not in st.session_state: st.session_state.page = "Accueil"
-if 'admin_auth' not in st.session_state: st.session_state.admin_auth = False
-
-def changer_page(nom): st.session_state.page = nom
-
-# --- DONNÉES ---
-data_cameroun = {
-    "Adamaoua": ["Hôpital Régional de Ngaoundéré", "Hôpital de District de Tibati"],
-    "Centre": ["Hôpital Général de Yaoundé", "Hôpital Central de Yaoundé", "CHU", "Gynéco-Obstétrique"],
-    "Littoral": ["Hôpital Général de Douala", "Hôpital Laquintinie", "Hôpital de Bonassama"],
-    "Extrême-Nord": ["Hôpital Régional de Maroua", "Hôpital de Kousseri"],
-    "Nord": ["Hôpital Régional de Garoua"], "Est": ["Hôpital Régional de Bertoua"],
-    "Ouest": ["Hôpital Régional de Bafoussam"], "Sud": ["Hôpital Régional d'Ebolowa"],
-    "Nord-Ouest": ["Hôpital Régional de Bamenda"], "Sud-Ouest": ["Hôpital Régional de Buea"]
-}
-
-# --- DESIGN CSS (REPRODUCTION EXACTE IMAGE 2) ---
-st.markdown("""
-    <style>
-    /* Fond : Hôpital Général de Yaoundé */
-    .stApp {
-        background: linear-gradient(rgba(0, 30, 70, 0.8), rgba(0, 30, 70, 0.8)), 
-                    url('https://leconomiste.cm/wp-content/uploads/2022/08/Hôpital-général-de-Yaoundé.jpg');
-        background-size: cover; background-attachment: fixed; color: white;
-    }
-
-    /* LES TROIS BULLES LARGES BLEU MARINE */
-    .nav-container .stButton > button {
-        height: 200px !important;
-        width: 100% !important;
-        background-color: #1a3352 !important; /* BLEU MARINE DE L'IMAGE */
-        color: white !important;
-        border: 2px solid white !important; /* BORDURE BLANCHE FINE */
-        border-radius: 15px !important;
-        font-size: 22px !important;
-        font-weight: bold !important;
-        white-space: pre-wrap !important;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.4) !important;
-        transition: 0.3s;
-    }
-    .nav-container .stButton > button:hover {
-        background-color: #24446d !important;
-        transform: translateY(-5px);
-    }
-
-    /* PETIT BOUTON RETOUR RECTANGULAIRE */
-    .back-btn .stButton > button {
-        height: 35px !important; width: 110px !important; font-size: 13px !important;
-        background-color: rgba(255, 255, 255, 0.1) !important; border: 1px solid white !important;
-    }
-
-    /* Info cards */
-    .info-card {
-        background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 15px; 
-        color: #1a1a1a; margin-bottom: 20px; border-left: 8px solid #e1395f;
-    }
-    label { color: white !important; font-weight: bold; }
-    .white-box { background: white; padding: 30px; border-radius: 15px; color: black; }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- BASE DE DONNÉES ---
-def get_connection(): return sqlite3.connect('patient_plus_final_national.db', check_same_thread=False)
-def init_db():
-    conn = get_connection()
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS rapports (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom TEXT, prenom TEXT, age INTEGER, email TEXT, region TEXT, hopital TEXT, 
-                    motif TEXT, attente INTEGER, eval_inf TEXT, eval_med TEXT, 
-                    suggestions TEXT, date_soumission DATETIME)''')
-    conn.commit()
-    conn.close()
-init_db()
-
 # --- PAGE 1 : ACCUEIL ---
 if st.session_state.page == "Accueil":
-    st.markdown("<h1 style='text-align:center; font-size:65px;'>PATIENT PLUS</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; font-size:20px;'>Amélioration du traitement de service dans les services d'urgence et hospitaliers.</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; font-size:60px; margin-bottom:0;'>PATIENT PLUS</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:18px; opacity:0.9;'>Système National de Suivi des Urgences et de la Performance Hospitalière</p>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    # Statistiques directes
-    conn = get_connection()
-    df = pd.read_sql_query("SELECT * FROM rapports", conn)
-    conn.close()
-    if not df.empty:
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Audits", len(df)), c2.metric("Attente Moy.", f"{round(df['attente'].mean(),1)}m"), c3.metric("Régions", df['region'].nunique())
+    # Titre de navigation style image
+    st.markdown("<div style='text-align:center; font-weight:bold; letter-spacing:2px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px; margin-bottom:30px;'>NAVIGUER DANS L'APPLICATION</div>", unsafe_allow_html=True)
 
-    col_a, col_b = st.columns(2)
-    with col_a: st.markdown('<div class="info-card"><h4>Hôpitaux Publics</h4><p>172 établissements suivis pour optimiser la performance nationale.</p></div>', unsafe_allow_html=True)
-    with col_b: st.markdown('<div class="info-card"><h4>Maternité</h4><p>Analyse des naissances assistées pour renforcer la sécurité sanitaire.</p></div>', unsafe_allow_html=True)
+    # Conteneur des 3 colonnes
+    col1, col2, col3 = st.columns(3)
 
-    # --- LES TROIS BULLES LARGES (NAVIGATION) ---
-    st.markdown("<br><h3 style='text-align:center;'>NAVIGUER DANS L'APPLICATION</h3>", unsafe_allow_html=True)
-    st.markdown('<div class="nav-container">', unsafe_allow_html=True)
-    n1, n2, n3 = st.columns(3)
-    with n1: st.button("📝 AUDIT\n\nParticiper à l'enquête", on_click=lambda: changer_page("Audit"))
-    with n2: st.button("🔐 ADMIN\n\nEspace Enquêteur", on_click=lambda: changer_page("Admin"))
-    with n3: st.button("ℹ️ INFOS\n\nÀ propos du projet", on_click=lambda: changer_page("Infos"))
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Style CSS spécifique pour superposer le bouton invisible sur la carte HTML
+    st.markdown("""
+        <style>
+        .stButton button {
+            width: 100%;
+            height: 220px; /* Même hauteur que la carte */
+            background-color: transparent !important;
+            color: transparent !important;
+            border: none !important;
+            position: absolute;
+            z-index: 10;
+        }
+        .nav-card {
+            background-color: #122a45; /* Bleu marine profond */
+            border: 2px solid white;
+            border-radius: 15px;
+            padding: 30px 10px;
+            text-align: center;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .nav-card:hover {
+            background-color: #1c3d63;
+            transform: scale(1.02);
+        }
+        .card-icon { font-size: 40px; margin-bottom: 10px; }
+        .card-title { font-size: 24px; font-weight: bold; color: white; text-transform: uppercase; }
+        .card-subtitle { font-size: 14px; color: #cbd5e0; margin-top: 10px; }
+        </style>
+    """, unsafe_allow_html=True)
 
-# --- PAGE 2 : AUDIT ---
-elif st.session_state.page == "Audit":
-    st.markdown('<div class="back-btn">', unsafe_allow_html=True)
-    st.but
+    with col1:
+        st.button("clic_audit", key="b1", on_click=lambda: changer_page("Audit"))
+        st.markdown("""
+            <div class="nav-card">
+                <div class="card-icon">📝</div>
+                <div class="card-title">AUDIT</div>
+                <div class="card-subtitle">Participer à l'enquête</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.button("clic_admin", key="b2", on_click=lambda: changer_page("Admin"))
+        st.markdown("""
+            <div class="nav-card">
+                <div class="card-icon">🔐</div>
+                <div class="card-title">ADMIN</div>
+                <div class="card-subtitle">Espace Enquêteur</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.button("clic_infos", key="b3", on_click=lambda: changer_page("Infos"))
+        st.markdown("""
+            <div class="nav-card">
+                <div class="card-icon">ℹ️</div>
+                <div class="card-title">INFOS</div>
+                <div class="card-subtitle">À propos du projet</div>
+            </div>
+        """, unsafe_allow_html=True)
