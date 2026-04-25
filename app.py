@@ -4,37 +4,30 @@ import plotly.express as px
 import sqlite3
 from datetime import datetime
 
-# --- CONFIGURATION DU THÈME (BLEU NUIT) ---
+# --- CONFIGURATION DE LA PAGE ---
 st.set_page_config(page_title="Audit Qualité Hospitalière", layout="wide")
 
-# Injection CSS pour un thème Bleu Nuit élégant
+# --- THÈME BLEU NUIT (Correction du paramètre) ---
 st.markdown("""
     <style>
     .main {
-        background-color: #1a2634;
-        color: #ffffff;
+        background-color: #0e1117;
     }
-    .stApp {
-        background-color: #1a2634;
-    }
-    .sidebar .sidebar-content {
-        background-color: #111b27;
-    }
-    h1, h2, h3, p {
+    h1, h2, h3, p, span, label {
         color: #e0e6ed !important;
     }
     .stButton>button {
         background-color: #2c5282;
         color: white;
         border-radius: 8px;
-        border: none;
     }
-    .stTextInput>div>div>input, .stSelectbox>div>div>div {
-        background-color: #2d3748 !important;
+    /* Style pour les champs de saisie */
+    input {
+        background-color: #1a202c !important;
         color: white !important;
     }
     </style>
-    """, unsafe_allow_stdio=True)
+    """, unsafe_allow_html=True) # <-- C'était ici l'erreur, c'est corrigé !
 
 # --- BASE DE DONNÉES ---
 def get_connection():
@@ -58,25 +51,26 @@ init_db()
 st.sidebar.title("🩺 Navigation")
 page = st.sidebar.radio("Aller vers :", ["🏠 Accueil", "📝 Formulaire d'Audit", "📊 Analyse des Données"])
 
-# --- PAGE 1 : ACCUEIL (PAGE DE GARDE) ---
+# --- PAGE 1 : ACCUEIL ---
 if page == "🏠 Accueil":
     st.title("Audit National pour l'Amélioration des Services Hospitaliers")
-    st.image("https://img.freepik.com/vecteurs-libre/fond-bleu-abstrait-forme-vague_343694-2330.jpg?size=626&ext=jpg", use_container_width=True)
+    st.info("Système de collecte de données en ligne - Projet INF232")
     
     st.markdown("""
     ### 📌 À propos de cet Audit
-    Cette application a été conçue pour recueillir des données précises sur l'expérience des patients dans nos établissements hospitaliers.
+    Cette application est un outil d'audit cherchant à **améliorer la qualité des services** dans nos hôpitaux. 
+    Elle permet de recueillir des informations sur le parcours des patients et d'analyser l'efficacité du personnel.
     
-    **L'objectif est double :**
-    1. **Identifier les points faibles** dans la prise en charge des urgences et l'attitude du personnel.
-    2. **Moderniser les services** en évaluant la demande pour la digitalisation des prises de rendez-vous.
-    
-    *Vos réponses sont précieuses et permettront d'orienter les futures réformes de santé publique.*
+    **Objectifs de l'étude :**
+    - Mesurer le temps d'attente moyen aux urgences.
+    - Évaluer le professionnalisme et l'attitude des agents de santé.
+    - Sonder l'opinion sur la mise en place d'un système de rendez-vous en ligne.
     
     ---
-    **Instructions :**
-    - Cliquez sur l'onglet **Formulaire d'Audit** dans la barre latérale pour commencer.
-    - Vos données seront analysées anonymement dans l'onglet **Analyse**.
+    **Comment procéder ?**
+    1. Utilisez la barre latérale pour accéder au **Formulaire**.
+    2. Remplissez honnêtement vos informations.
+    3. Consultez les résultats globaux dans l'onglet **Analyse**.
     """)
 
 # --- PAGE 2 : FORMULAIRE D'AUDIT ---
@@ -84,25 +78,25 @@ elif page == "📝 Formulaire d'Audit":
     st.header("Saisie des informations de l'audit")
     
     with st.form("audit_form", clear_on_submit=True):
-        st.subheader("👤 Identification du Patient")
+        st.subheader("👤 Identification")
         c1, c2 = st.columns(2)
         nom = c1.text_input("Nom")
         prenom = c2.text_input("Prénom")
-        domicile = c1.text_input("Ville / Quartier de domicile")
+        domicile = c1.text_input("Ville / Quartier")
         metier = c2.text_input("Profession")
         
-        st.subheader("🏥 Contexte de la visite")
-        raison_visite = st.text_area("De quoi souffriez-vous ? (Raison de votre présence à l'hôpital)")
-        nom_h = st.selectbox("Hôpital concerné", ["Hôpital Central", "Clinique Sainte-Marie", "CHU Nord", "Hôpital de District"])
+        st.subheader("🏥 Contexte")
+        raison_visite = st.text_area("Raison de la présence à l'hôpital (Symptômes / Maladie)")
+        nom_h = st.selectbox("Établissement concerné", ["Hôpital Central", "Clinique Sainte-Marie", "CHU Nord", "Hôpital de District"])
         
-        st.subheader("📋 Évaluation du service")
+        st.subheader("📋 Évaluation")
         col_a, col_b = st.columns(2)
         with col_a:
-            t_urgence = st.slider("Temps d'attente aux urgences (min)", 0, 180, 20)
-            qualite = st.select_slider("Qualité des soins", options=["Médiocre", "Passable", "Satisfaisant", "Excellent"])
+            t_urgence = st.slider("Temps de réaction aux urgences (min)", 0, 180, 20)
+            qualite = st.select_slider("Qualité globale des soins", options=["Médiocre", "Passable", "Satisfaisant", "Excellent"])
         with col_b:
             attitude = st.selectbox("Attitude du personnel", ["Impoli", "Indifférent", "Professionnel", "Chaleureux"])
-            travail = st.radio("Façon de travailler", ["Désorganisée", "Lente", "Efficace"])
+            travail = st.radio("Efficacité du travail", ["Désorganisée", "Moyenne", "Très organisée"])
             rdv_en_ligne = st.radio("L'option de RDV en ligne est-elle préférable ?", ["Oui", "Non"])
 
         submitted = st.form_submit_button("Envoyer l'Audit")
@@ -119,42 +113,38 @@ elif page == "📝 Formulaire d'Audit":
                           qualite, attitude, travail, rdv_en_ligne, datetime.now()))
                 conn.commit()
                 conn.close()
-                st.success("✅ Merci ! Vos données ont été transmises à la base de l'audit.")
+                st.success("✅ Données transmises avec succès !")
             else:
-                st.warning("⚠️ Veuillez remplir au moins le nom et le prénom.")
+                st.warning("⚠️ Veuillez renseigner votre identité.")
 
-# --- PAGE 3 : ANALYSE DES DONNÉES ---
+# --- PAGE 3 : ANALYSE ---
 elif page == "📊 Analyse des Données":
-    st.header("Statistiques Descriptives de l'Audit")
+    st.header("Visualisation de l'Audit")
     
     conn = get_connection()
     df = pd.read_sql_query("SELECT * FROM rapports", conn)
     conn.close()
 
     if df.empty:
-        st.info("En attente de données pour générer les graphiques...")
+        st.warning("Aucune donnée disponible.")
     else:
         # Métriques
         m1, m2, m3 = st.columns(3)
-        m1.metric("Total des Audits", len(df))
-        m2.metric("Moyenne Urgences", f"{round(df['temps_urgence'].mean(), 1)} min")
-        rdv_taux = (len(df[df['option_rdv'] == "Oui"]) / len(df)) * 100
-        m3.metric("Favorable RDV en ligne", f"{round(rdv_taux, 1)}%")
-
+        m1.metric("Total Audits", len(df))
+        m2.metric("Attente Moyenne", f"{round(df['temps_urgence'].mean(), 1)} min")
+        
+        # Graphiques
         st.divider()
-
-        # Graphiques avec couleurs adaptées au thème nuit
         g1, g2 = st.columns(2)
         with g1:
-            st.subheader("Répartition de l'attitude du personnel")
-            fig1 = px.pie(df, names='attitude_personnel', hole=0.4, template="plotly_dark")
+            st.subheader("Satisfaction : Attitude")
+            fig1 = px.pie(df, names='attitude_personnel', hole=0.3, template="plotly_dark")
             st.plotly_chart(fig1, use_container_width=True)
-            
         with g2:
-            st.subheader("Temps d'attente moyen par établissement")
+            st.subheader("Attente par Hôpital")
             avg_h = df.groupby('nom_hopital')['temps_urgence'].mean().reset_index()
-            fig2 = px.bar(avg_h, x='nom_hopital', y='temps_urgence', template="plotly_dark", color='nom_hopital')
+            fig2 = px.bar(avg_h, x='nom_hopital', y='temps_urgence', template="plotly_dark")
             st.plotly_chart(fig2, use_container_width=True)
 
-        st.subheader("Détails des répondants")
-        st.dataframe(df[['nom', 'prenom', 'domicile', 'metier', 'raison_visite', 'date_enregistrement']], use_container_width=True)
+        st.subheader("Base de données brute")
+        st.dataframe(df, use_container_width=True)
