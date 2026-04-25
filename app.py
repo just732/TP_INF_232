@@ -4,79 +4,82 @@ import plotly.express as px
 import sqlite3
 from datetime import datetime
 
-# --- CONFIGURATION ---
-st.set_page_config(page_title="Audit Médical Pro", layout="wide")
+# --- CONFIGURATION DE LA PAGE ---
+st.set_page_config(page_title="Système d'Audit Hospitalier", layout="wide")
 
-# --- DESIGN STYLE "BULLE" MODERNE ---
+# --- DESIGN PROFESSIONNEL (ÉPURÉ) ---
 st.markdown("""
     <style>
-    /* Fond dégradé bleu professionnel */
+    /* Fond dégradé sobre */
     .stApp {
-        background: linear-gradient(180deg, #004a99 0%, #f0f4f8 40%);
-        color: #1E1E1E;
+        background: linear-gradient(180deg, #002b5c 0%, #f4f7f9 35%);
+        color: #1a1a1a;
     }
     
-    /* Grande Bulle d'Objectif (Police augmentée) */
+    /* Bulle d'Objectif Institutionnelle */
     .objective-bubble {
         background-color: white;
-        padding: 40px;
-        border-radius: 30px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        padding: 50px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         margin: 20px 0;
-        border-left: 15px solid #002b5c;
+        border-top: 8px solid #002b5c;
         text-align: center;
     }
     .objective-bubble h1 {
-        font-size: 50px !important;
+        font-size: 48px !important;
         color: #002b5c !important;
-        font-weight: 800;
-        margin-bottom: 15px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 2px;
     }
     .objective-bubble p {
-        font-size: 24px !important;
-        color: #333;
-        line-height: 1.5;
+        font-size: 22px !important;
+        color: #34495e;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
-    /* Cartes de méthode */
+    /* Cartes de Méthodologie */
     .method-card {
         background-color: white;
-        padding: 25px;
-        border-radius: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         text-align: center;
-        border-bottom: 5px solid #0056b3;
+        border-bottom: 4px solid #002b5c;
     }
+    .method-card h3 { color: #002b5c; font-size: 24px; }
 
-    /* Lisibilité du formulaire (Texte noir sur fond blanc) */
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
-        background-color: white !important;
-        color: black !important;
-        border-radius: 10px !important;
-    }
+    /* Formulaire Professionnel */
     label { 
-        font-size: 19px !important; 
-        font-weight: bold !important; 
+        font-size: 16px !important; 
+        font-weight: 600 !important; 
         color: #002b5c !important; 
     }
+    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
     
-    /* Bouton d'action */
+    /* Bouton de soumission */
     .stButton>button {
         background-color: #002b5c;
         color: white;
-        border-radius: 50px;
-        padding: 15px 40px;
-        font-size: 22px;
+        border-radius: 4px;
+        padding: 12px 50px;
+        font-size: 18px;
         font-weight: bold;
         width: 100%;
         border: none;
+        text-transform: uppercase;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- BASE DE DONNÉES ---
+# --- GESTION DES DONNÉES ---
 def get_connection():
-    return sqlite3.connect('audit_final_hopital.db', check_same_thread=False)
+    return sqlite3.connect('audit_hospitalier_final.db', check_same_thread=False)
 
 def init_db():
     conn = get_connection()
@@ -94,59 +97,60 @@ def init_db():
 
 init_db()
 
-# --- NAVIGATION ---
-st.sidebar.title("🏨 NAVIGATION")
-page = st.sidebar.radio("Menu", ["🏠 Accueil", "📝 Formulaire d'Audit", "📊 Dashboard Analyse"])
+# --- NAVIGATION ADMINISTRATIVE ---
+st.sidebar.title("Menu de l'Audit")
+page = st.sidebar.radio("Sélectionnez une section :", 
+                        ["Présentation de l'Audit", "Collecte des Données", "Rapport d'Analyse"])
 
-# --- PAGE 1 : ACCUEIL ---
-if page == "🏠 Accueil":
+# --- PAGE 1 : PRÉSENTATION ---
+if page == "Présentation de l'Audit":
     st.markdown("""
         <div class="objective-bubble">
-            <h1>OBJECTIF DE L'AUDIT</h1>
-            <p>Améliorer la qualité des services hospitaliers en analysant le parcours patient, l'efficacité du personnel et la pertinence de la digitalisation des soins.</p>
+            <h1>Objectif de l'Audit</h1>
+            <p>Optimisation de la performance hospitalière par l'analyse quantitative des données patients et l'évaluation de la qualité des soins en milieu médical.</p>
         </div>
     """, unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown('<div class="method-card"><h3>📈 Analyse</h3><p>Méthodes quantitatives de mesure.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="method-card"><h3>Analyse Statistique</h3><p>Traitement des données de flux et de temps de réponse.</p></div>', unsafe_allow_html=True)
     with col2:
-        st.markdown('<div class="method-card"><h3>🤝 Personnel</h3><p>Évaluation globale et spécifique.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="method-card"><h3>Évaluation RH</h3><p>Audit de la qualité de service par corps de métier.</p></div>', unsafe_allow_html=True)
     with col3:
-        st.markdown('<div class="method-card"><h3>🚀 Futur</h3><p>Digitalisation des rendez-vous.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="method-card"><h3>Digitalisation</h3><p>Étude d\'impact pour les rendez-vous numériques.</p></div>', unsafe_allow_html=True)
 
-# --- PAGE 2 : FORMULAIRE ---
-elif page == "📝 Formulaire d'Audit":
-    st.markdown("<h1 style='color:white; text-align:center;'>📝 Questionnaire d'Audit</h1>", unsafe_allow_html=True)
+# --- PAGE 2 : COLLECTE DES DONNÉES (FORMULAIRE) ---
+elif page == "Collecte des Données":
+    st.markdown("<h2 style='color:white; text-align:center;'>Questionnaire d'Audit Institutionnel</h2>", unsafe_allow_html=True)
     
     with st.form("audit_form", clear_on_submit=True):
-        st.subheader("👤 1. Identification & Contexte")
+        st.subheader("I. État Civil et Profil")
         c1, c2 = st.columns(2)
-        nom = c1.text_input("Nom")
+        nom = c1.text_input("Nom de famille")
         prenom = c2.text_input("Prénom")
-        dom = c1.text_input("Domicile")
-        job = c2.text_input("Métier")
-        raison = st.text_area("Raison de votre visite (Symptômes / Souffrances)")
+        dom = c1.text_input("Lieu de résidence")
+        job = c2.text_input("Secteur d'activité / Métier")
+        raison = st.text_area("Motif médical de la consultation (Symptomatologie)")
         
-        st.subheader("🏥 2. Évaluation Globale")
-        hopital = st.selectbox("Hôpital concerné", ["Hôpital Général", "CHU Central", "Clinique Privée"])
-        t_urgence = st.slider("Temps d'attente urgences (min)", 0, 180, 20)
-        attitude_g = st.selectbox("Attitude globale du personnel", ["Médiocre", "Neutre", "Accueillante", "Excellente"])
-        travail_g = st.radio("Organisation générale du travail", ["Désorganisée", "Passable", "Très organisée"])
+        st.subheader("II. Évaluation Globale de l'Établissement")
+        hopital = st.selectbox("Établissement audité", ["Hôpital Général", "CHU Central", "Hôpital Militaire", "Clinique Conventionnée"])
+        t_urgence = st.slider("Délai de prise en charge aux urgences (en minutes)", 0, 240, 30)
+        attitude_g = st.selectbox("Évaluation de l'accueil général", ["Insuffisant", "Passable", "Satisfaisant", "Excellent"])
+        travail_g = st.radio("Perception de l'organisation interne", ["Désorganisée", "Standard", "Optimisée"])
 
-        st.subheader("👩‍ 3. Détail Personnel Infirmier")
-        e_inf = st.select_slider("Note pour les Infirmières", options=["Basse", "Moyenne", "Haute", "Parfaite"])
-        j_inf = st.text_area("Justification (Infirmières)")
+        st.subheader("III. Audit du Personnel Infirmier")
+        e_inf = st.select_slider("Qualité de service (Infirmiers)", options=["Faible", "Moyenne", "Élevée", "Optimale"])
+        j_inf = st.text_area("Justification détaillée (Soins infirmiers)")
 
-        st.subheader("👨‍⚕️ 4. Détail Corps Médical (Médecins)")
-        e_med = st.select_slider("Note pour les Médecins", options=["Basse", "Moyenne", "Haute", "Parfaite"])
-        j_med = st.text_area("Justification (Médecins)")
+        st.subheader("IV. Audit du Corps Médical (Médecins)")
+        e_med = st.select_slider("Qualité de service (Médecins)", options=["Faible", "Moyenne", "Élevée", "Optimale"])
+        j_med = st.text_area("Justification détaillée (Consultation médicale)")
 
-        st.subheader("🌐 5. Digitalisation")
-        rdv = st.radio("Prendre rendez-vous en ligne avec un médecin spécifique de cet hôpital vous conviendrait-il ?", 
-                      ["Oui, ce serait idéal", "Non, je ne préfère pas"])
+        st.subheader("V. Perspectives de Digitalisation")
+        rdv = st.radio("L'implémentation d'un système de rendez-vous en ligne avec un praticien spécifique vous semble-t-elle pertinente ?", 
+                      ["Favorable", "Défavorable"])
 
-        if st.form_submit_button("SOUMETTRE L'AUDIT"):
+        if st.form_submit_button("VALIDER ET ENREGISTRER L'AUDIT"):
             if nom and prenom and raison:
                 conn = get_connection()
                 c = conn.cursor()
@@ -159,37 +163,38 @@ elif page == "📝 Formulaire d'Audit":
                           e_inf, j_inf, e_med, j_med, rdv, datetime.now()))
                 conn.commit()
                 conn.close()
-                st.success("✅ Audit enregistré avec succès !")
-                st.balloons()
+                st.success("Enregistrement confirmé. Les données ont été transmises au serveur d'analyse.")
             else:
-                st.error("⚠️ Veuillez remplir tous les champs obligatoires.")
+                st.error("Erreur : Les champs obligatoires d'identification doivent être complétés.")
 
-# --- PAGE 3 : ANALYSE ---
-elif page == "📊 Dashboard Analyse":
-    st.markdown("<h1 style='color:white; text-align:center;'>📊 Analyse Descriptive</h1>", unsafe_allow_html=True)
+# --- PAGE 3 : RAPPORT D'ANALYSE ---
+elif page == "Rapport d'Analyse":
+    st.markdown("<h2 style='color:white; text-align:center;'>Rapport de Synthèse Statistique</h2>", unsafe_allow_html=True)
     
     conn = get_connection()
     df = pd.read_sql_query("SELECT * FROM rapports", conn)
     conn.close()
 
     if df.empty:
-        st.info("En attente de données...")
+        st.info("Aucune donnée disponible pour la génération du rapport.")
     else:
+        # Indicateurs de performance
         c1, c2, c3 = st.columns(3)
-        c1.metric("Total Audits", len(df))
-        c2.metric("Attente Moy.", f"{round(df['temps_urgence'].mean(), 1)} min")
-        rdv_p = (len(df[df['rdv_medecin_ligne'].str.contains("Oui")]) / len(df)) * 100
-        c3.metric("Favorable RDV Ligne", f"{round(rdv_p, 1)}%")
+        c1.metric("Échantillon total", f"{len(df)} audits")
+        c2.metric("Moyenne d'attente", f"{round(df['temps_urgence'].mean(), 1)} min")
+        taux = (len(df[df['rdv_medecin_ligne'] == "Favorable"]) / len(df)) * 100
+        c3.metric("Taux d'adhésion digital", f"{round(taux, 1)}%")
 
         st.divider()
 
-        g1, g2 = st.columns(2)
-        with g1:
-            fig1 = px.pie(df, names='attitude_globale', title="Attitude Globale du Personnel", hole=0.3)
+        # Visualisations
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            fig1 = px.pie(df, names='attitude_globale', title="Analyse de l'Accueil")
             st.plotly_chart(fig1, use_container_width=True)
-        with g2:
-            fig2 = px.bar(df, x='nom_hopital', y='temps_urgence', title="Temps moyen d'urgence")
+        with col_g2:
+            fig2 = px.histogram(df, x='nom_hopital', y='temps_urgence', histfunc='avg', title="Performance Temporelle par Site")
             st.plotly_chart(fig2, use_container_width=True)
 
-        st.subheader("📋 Justifications détaillées")
-        st.dataframe(df[['nom', 'justif_infirmieres', 'justif_medecins', 'rdv_medecin_ligne']], use_container_width=True)
+        st.subheader("Base de Données d'Audit")
+        st.dataframe(df, use_container_width=True)
