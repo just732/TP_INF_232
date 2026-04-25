@@ -5,251 +5,200 @@ import sqlite3
 from datetime import datetime
 
 # --- CONFIGURATION DE LA PAGE ---
-st.set_page_config(page_title="Patient Plus - Audit National Cameroun", layout="wide")
+st.set_page_config(page_title="Patient Plus - Audit National", layout="wide")
 
-# --- DESIGN PERSONNALISÉ (Style Moderne avec Images en Fond) ---
+# --- INITIALISATION DE LA NAVIGATION ---
+if 'page' not in st.session_state:
+    st.session_state.page = "Accueil"
+
+# --- DESIGN CSS PERSONNALISÉ ---
 st.markdown("""
     <style>
-    /* Fond global : Fond d'écran de l'hôpital */
+    /* Masquer le menu latéral et le header Streamlit */
+    [data-testid="stSidebar"], header { display: none !important; }
+    .stApp { margin-top: -50px; }
+
+    /* Fond d'écran global (Image 3) */
     .stApp {
-        background-image: url('https://leconomiste.cm/wp-content/uploads/2022/08/Hôpital-général-de-Yaoundé.jpg'); /* Image de fond principale */
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                    url('https://leconomiste.cm/wp-content/uploads/2022/08/Hôpital-général-de-Yaoundé.jpg');
         background-size: cover;
         background-attachment: fixed;
-        background-position: center;
-        color: white; /* Police blanche sur fond sombre */
-    }
-    /* Masque pour rendre le texte lisible sur l'image */
-    .app-content {
-        background-color: rgba(0, 43, 92, 0.85); /* Fond bleu foncé semi-transparent */
-        padding: 40px;
-        border-radius: 25px;
-        margin: 20px 0;
     }
 
-    /* Style des bulles d'information avec image en fond */
-    .info-bubble {
-        background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        padding: 20px;
-        color: #1a1a1a;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        margin-bottom: 20px;
-        border-top: 6px solid #e1395f; /* Touche rouge pour l'importance */
-        height: 320px; /* Hauteur fixe pour un alignement */
+    /* Style des Bulles avec Images de fond */
+    .bubble-container {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+    
+    .bubble {
+        width: 45%;
+        min-width: 300px;
+        height: 400px;
+        border-radius: 30px;
+        padding: 30px;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-    }
-    .info-bubble h4 { 
-        color: #39559e; 
-        font-weight: bold; 
-        font-size: 20px;
-        margin-bottom: 10px;
-    }
-    .info-bubble img {
-        width: 100%;
-        height: 120px; /* Hauteur réduite pour l'image en fond de bulle */
-        object-fit: cover;
-        border-radius: 15px;
-        margin-bottom: 10px;
+        justify-content: flex-end;
     }
 
-    /* Section d'accueil avec objectif et titre */
-    .hero-section {
+    /* Fond image pour Bulle 1 (Pédiatrie) */
+    .bubble-1 {
+        background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2)), 
+                    url('https://www.stopblablacam.com/images/k2/items/cache/f7f7b1f1b9f7a7d9a1f1b9f7a7d9a1f1_XL.jpg');
+        background-size: cover;
+    }
+
+    /* Fond image pour Bulle 2 (Maternité) */
+    .bubble-2 {
+        background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2)), 
+                    url('https://static.atlantico.fr/sites/default/files/styles/image_744x422/public/images/2013/05/bebe_couveuse.jpg');
+        background-size: cover;
+    }
+
+    .bubble h3 { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+    .bubble p { font-size: 15px; line-height: 1.4; }
+
+    /* Texte d'objectif central */
+    .hero-text {
         text-align: center;
-        padding: 50px 0;
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+        margin: 50px 0;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
     }
-    .hero-section h1 { font-size: 55px !important; font-weight: 700; margin-bottom: 10px; }
-    .hero-section p { font-size: 22px !important; font-weight: 500; max-width: 800px; margin: 0 auto; }
 
-    /* Bouton "Accéder au formulaire" */
-    .cta-button {
-        display: block;
-        width: fit-content;
-        margin: 30px auto 0 auto;
-        padding: 12px 30px;
+    /* Bouton Central Rouge Patient Plus */
+    .main-button-container {
+        text-align: center;
+        margin-top: 50px;
+        padding-bottom: 100px;
+    }
+    
+    .stButton>button {
         background-color: #e1395f !important;
         color: white !important;
         border-radius: 50px !important;
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: bold;
+        padding: 20px 60px !important;
+        font-size: 24px !important;
+        font-weight: bold !important;
+        border: none !important;
+        box-shadow: 0 10px 20px rgba(225, 57, 95, 0.4) !important;
+        transition: 0.3s;
     }
+    .stButton>button:hover { transform: scale(1.05); }
 
-    /* Formulaire */
-    label { color: white !important; font-weight: bold; }
-    .stTextInput input, .stTextArea textarea, .stSelectbox div div div { 
-        background-color: rgba(255, 255, 255, 0.8) !important; 
-        color: black !important;
-        border-radius: 10px !important;
+    /* Formulaire Style Blanc */
+    .form-container {
+        background: white;
+        padding: 40px;
+        border-radius: 30px;
+        color: #333;
+        margin: 0 auto;
+        max-width: 900px;
     }
-    /* Bouton soumettre du formulaire */
-    .stButton>button {
-        background-color: #39559e !important;
-        color: white !important;
-        border-radius: 10px !important;
-        padding: 10px 25px !important;
-    }
+    label { color: #39559e !important; font-weight: bold !important; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- BASE DE DONNÉES ---
-def get_connection():
-    return sqlite3.connect('patient_plus_audit_v7.db', check_same_thread=False)
-
 def init_db():
-    conn = get_connection()
+    conn = sqlite3.connect('audit_cameroun_v7.db', check_same_thread=False)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS rapports (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom TEXT, prenom TEXT, age INTEGER, sexe TEXT, metier TEXT, 
-                    dob TEXT, domicile TEXT, email TEXT,
-                    maladie TEXT, service TEXT, hopital TEXT, experience TEXT,
-                    attente INTEGER, attitude_g TEXT,
-                    eval_inf TEXT, justif_inf TEXT, eval_med TEXT, justif_med TEXT,
-                    rdv_ligne TEXT, suggestions TEXT, date_soumission DATETIME)''')
+                    nom TEXT, prenom TEXT, age INTEGER, sexe TEXT, metier TEXT, dob TEXT, 
+                    domicile TEXT, email TEXT, maladie TEXT, service TEXT, hopital TEXT, 
+                    attente INTEGER, attitude_g TEXT, eval_inf TEXT, justif_inf TEXT, 
+                    eval_med TEXT, justif_med TEXT, rdv_ligne TEXT, suggestions TEXT)''')
     conn.commit()
     conn.close()
 
 init_db()
 
-# --- NAVIGATION ---
-page = st.sidebar.radio("Navigation", ["🏠 Accueil", "📝 Formulaire d'Audit", "📊 Statistiques"])
+# --- LOGIQUE DE NAVIGATION ---
+def change_page(name):
+    st.session_state.page = name
 
 # --- PAGE 1 : ACCUEIL ---
-if page == "🏠 Accueil":
+if st.session_state.page == "Accueil":
+    st.markdown("<h1 style='text-align:center; font-size:60px; color:white;'>PATIENT PLUS</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='hero-text'>Cette application a pour but d'améliorer la qualité du traitement de service dans nos services d'urgence et hospitaliers du pays.</div>", unsafe_allow_html=True)
+
+    # Bulles d'info avec images en fond
     st.markdown("""
-        <div class="hero-section">
-            <h1>PATIENT PLUS</h1>
-            <p>Votre feedback, notre priorité pour l'amélioration continue des services de santé au Cameroun.</p>
+        <div class="bubble-container">
+            <div class="bubble bubble-1">
+                <h3>📊 Performance Hospitalière</h3>
+                <p><b>Hôpitaux Régionaux :</b> 4 000 à 6 000 hospitalisations/an (surcharge critique).<br>
+                <b>Efficacité :</b> Seuls 48% des 172 hôpitaux publics remplissent les critères de bonne performance.<br>
+                <b>Suivi :</b> Les consultations pédiatriques restent un indicateur de santé prioritaire.</p>
+            </div>
+            <div class="bubble bubble-2">
+                <h3>👶 Santé Maternelle</h3>
+                <p><b>Admission Institutionnelle :</b> Environ 35,9% des accouchements se font encore à domicile sans assistance médicale au Cameroun.<br>
+                <b>Impact :</b> Ce chiffre réduit le taux de sécurité dans nos maternités et nécessite une réforme urgente.</p>
+            </div>
         </div>
     """, unsafe_allow_html=True)
+
+    # Bouton de redirection vers le formulaire
+    st.markdown("<div class='main-button-container'>", unsafe_allow_html=True)
+    if st.button("🚀 DÉMARRER L'AUDIT MAINTENANT"):
+        change_page("Formulaire")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# --- PAGE 2 : FORMULAIRE ---
+elif st.session_state.page == "Formulaire":
+    st.markdown("<div style='text-align:center; padding: 20px;'><button onclick='window.location.reload()' style='background:none; border:none; color:white; cursor:pointer;'>⬅ Retour à l'accueil</button></div>", unsafe_allow_html=True)
     
-    st.markdown("<div class='app-content'>", unsafe_allow_html=True)
-    
-    st.subheader("Objectifs Stratégiques de l'Audit National")
-    st.markdown("""
-        <p style="font-size: 18px; max-width: 900px; margin: 10px auto;">
-        Notre mission est de recueillir des données précises sur votre expérience dans les établissements de santé. 
-        Les informations collectées serviront à identifier les points d'amélioration clés concernant les urgences, la qualité des soins, et l'adoption des nouvelles technologies comme les rendez-vous en ligne.
-        </p>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("""
-            <div class="info-bubble">
-                <img src="https://www.stopblablacam.com/images/k2/items/cache/f7f7b1f1b9f7a7d9a1f1b9f7a7d9a1f1_XL.jpg">
-                <h4>Données d'Efficacité</h4>
-                <ul>
-                    <li><b>Taux d'Hospitalisation :</b> 4 000-6 000/an dans les hôpitaux régionaux (surcharge).</li>
-                    <li><b>Performance :</b> 48% des hôpitaux publics jugés performants.</li>
-                    <li><b>Suivi :</b> Importance des consultations pédiatriques externes.</li>
-                </ul>
-            </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-            <div class="info-bubble">
-                <img src="https://static.atlantico.fr/sites/default/files/styles/image_744x422/public/images/2013/05/bebe_couveuse.jpg">
-                <h4>Santé Maternelle et Infantile</h4>
-                <p><b>Risque à domicile :</b> 35,9% des naissances se font sans assistance médicale.</p>
-                <p>Priorité à la sécurité et au suivi institutionnel des mères et nouveau-nés.</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("<div style='text-align:center;'><a href='#page-formulaire' class='cta-button'>Participer à l'Audit</a></div>", unsafe_allow_html=True)
-    
-    # Ajout d'un placeholder pour le formulaire afin de pouvoir y accéder via le lien.
-    # Il sera toujours caché tant que l'utilisateur n'est pas sur la page formulaire.
     with st.container():
-        st.markdown("<a name='page-formulaire'></a>", unsafe_allow_html=True) # Ancre pour le lien
-        st.write("") # Ligne vide pour l'espacement
-
-# --- PAGE 2 : FORMULAIRE D'AUDIT ---
-if page == "📝 Formulaire d'Audit":
-    st.markdown("<h1 style='text-align:center;'>Formulaire d'Audit Patient</h1>", unsafe_allow_html=True)
-    
-    with st.form("audit_form"):
-        st.subheader("I. Informations Personnelles")
-        c1, c2 = st.columns(2)
-        nom = c1.text_input("Nom de famille")
-        prenom = c2.text_input("Prénom")
-        age = c1.number_input("Âge", min_value=0, max_value=120, value=25)
-        sexe = c2.selectbox("Sexe", ["Masculin", "Féminin", "Autre"])
-        metier = c1.text_input("Profession")
-        dob = c2.date_input("Date de naissance")
-        domicile = c1.text_input("Lieu de résidence (Ville/Quartier)")
-        email = c2.text_input("Adresse Email")
-
-        st.subheader("II. Contexte de la Consultation")
-        c3, c4 = st.columns(2)
-        hopital = c3.selectbox("Hôpital visité", ["Hôpital Général", "CHU Central", "Hôpital de District", "Clinique Privée", "Autre"])
-        service = c4.text_input("Service concerné (ex: Urgences, Maternité, Cardiologie)")
-        maladie = st.text_input("Motif principal de la visite (Maladie/Symptômes)")
-        experience = st.text_area("Décrivez votre expérience générale")
-
-        st.subheader("III. Évaluation du Personnel")
-        attente = st.slider("Temps d'attente aux urgences (minutes)", 0, 300, 30)
-        attitude_g = st.selectbox("Attitude globale du personnel", ["Insuffisante", "Moyenne", "Satisfaisante", "Excellente"])
+        st.markdown("<div class='form-container'>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center; color:#39559e;'>Questionnaire de Qualité</h2>", unsafe_allow_html=True)
         
-        col_inf, col_med = st.columns(2)
-        with col_inf:
-            e_inf = st.select_slider("Évaluation Infirmières", options=["1", "2", "3", "4", "5"])
-            j_inf = st.text_area("Justification (Infirmières)")
-        with col_med:
-            e_med = st.select_slider("Évaluation Médecins", options=["1", "2", "3", "4", "5"])
-            j_med = st.text_area("Justification (Médecins)")
+        with st.form("audit_form", clear_on_submit=True):
+            st.subheader("1. État Civil")
+            c1, c2 = st.columns(2)
+            nom, prenom = c1.text_input("Nom"), c2.text_input("Prénom")
+            age = c1.number_input("Âge", 0, 110, 25)
+            sexe = c2.selectbox("Sexe", ["Masculin", "Féminin"])
+            metier = c1.text_input("Métier")
+            dob = c2.date_input("Date de naissance")
+            domicile, email = c1.text_input("Lieu de résidence"), c2.text_input("Email")
 
-        st.subheader("IV. Recommandations et Digitalisation")
-        rdv_ligne = st.radio("Préférence pour un rendez-vous en ligne avec un médecin spécifique ?", ["Favorable", "Défavorable"])
-        suggestions = st.text_area("Propositions concrètes pour améliorer le service")
+            st.subheader("2. Contexte Médical")
+            hopital = st.selectbox("Établissement", ["Hôpital Général", "Hôpital Central", "Hôpital de Laquintinie", "Hôpital de District"])
+            service, maladie = st.text_input("Service (ex: Urgences)"), st.text_input("Motif / Maladie")
+            
+            st.subheader("3. Évaluation Personnel")
+            attente = st.slider("Temps d'attente (min)", 0, 300, 30)
+            attitude_g = st.selectbox("Attitude globale", ["Insuffisante", "Moyenne", "Satisfaisante", "Excellente"])
+            
+            ci, cm = st.columns(2)
+            e_inf, j_inf = ci.select_slider("Note Infirmières", options=["1", "2", "3", "4", "5"]), ci.text_area("Justif. Infirmières")
+            e_med, j_med = cm.select_slider("Note Médecins", options=["1", "2", "3", "4", "5"]), cm.text_area("Justif. Médecins")
 
-        if st.form_submit_button("SOUMETTRE L'AUDIT"):
-            if nom and prenom and email and suggestions: # Vérification des champs essentiels
-                conn = get_connection()
+            st.subheader("4. Suggestions")
+            rdv = st.radio("Favorable aux RDV en ligne avec un médecin spécifique ?", ["Oui", "Non"])
+            sug = st.text_area("Mesures concrètes pour améliorer le service")
+
+            if st.form_submit_button("VALIDER L'AUDIT"):
+                conn = sqlite3.connect('audit_cameroun_v7.db')
                 c = conn.cursor()
-                c.execute('''INSERT INTO rapports (nom, prenom, age, sexe, metier, dob, domicile, email,
-                            maladie, service, hopital, experience, attente, attitude_g,
-                            eval_inf, justif_inf, eval_med, justif_med, rdv_ligne, suggestions, date_soumission) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
-                         (nom, prenom, age, sexe, metier, str(dob), domicile, email, maladie, service, 
-                          hopital, experience, attente, attitude_g, e_inf, j_inf, e_med, j_med, rdv_ligne, suggestions, datetime.now()))
+                c.execute("INSERT INTO rapports (nom, prenom, age, sexe, metier, dob, domicile, email, maladie, service, hopital, attente, attitude_g, eval_inf, justif_inf, eval_med, justif_med, rdv_ligne, suggestions) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+                          (nom, prenom, age, sexe, metier, str(dob), domicile, email, maladie, service, hopital, attente, attitude_g, e_inf, j_inf, e_med, j_med, rdv, sug))
                 conn.commit()
                 conn.close()
-                st.success("Données enregistrées. Merci pour votre contribution à l'amélioration du système de santé.")
-                st.balloons() # Effet visuel pour la réussite
-            else:
-                st.error("Veuillez compléter les informations d'identification (Nom, Prénom, Email) et vos suggestions.")
-
-# --- PAGE 3 : ANALYSE DES DONNÉES ---
-elif page == "📊 Statistiques":
-    st.markdown("<h1 style='text-align:center;'>Tableau de Bord National</h1>", unsafe_allow_html=True)
-    
-    conn = get_connection()
-    df = pd.read_sql_query("SELECT * FROM rapports", conn)
-    conn.close()
-
-    if df.empty:
-        st.warning("Aucune donnée n'a encore été collectée pour l'analyse.")
-    else:
-        m1, m2, m3 = st.columns(3)
-        m1.metric("Nombre d'Audits", len(df))
-        m2.metric("Attente Moyenne", f"{round(df['temps_urgence'].mean(), 1)} min")
-        rdv_pos = (len(df[df['rdv_ligne'] == "Oui"]) / len(df)) * 100
-        m3.metric("Favorable RDV Ligne", f"{round(rdv_pos, 1)}%")
-
-        st.divider()
-        
-        st.subheader("Analyse des Temps d'Attente par Hôpital")
-        fig = px.bar(df.groupby('hopital')['attente'].mean().reset_index(), 
-                     x='hopital', y='attente', 
-                     title="Temps moyen d'attente aux urgences",
-                     color_discrete_sequence=['#39559e'])
-        st.plotly_chart(fig, use_container_width=True)
-
-        st.subheader("Synthèse des Suggestions d'Amélioration")
-        st.dataframe(df[['hopital', 'suggestions', 'date_soumission']])
+                st.success("Audit enregistré !")
+                st.balloons()
+        st.markdown("</div>", unsafe_allow_html=True)
