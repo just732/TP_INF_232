@@ -13,117 +13,119 @@ if 'admin_auth' not in st.session_state: st.session_state.admin_auth = False
 
 def changer_page(nom): st.session_state.page = nom
 
-# --- DONNÉES NATIONALES ---
+# --- DONNÉES ---
 data_cameroun = {
     "Adamaoua": ["Hôpital Régional de Ngaoundéré", "Hôpital de District de Tibati"],
-    "Centre": ["Hôpital Général de Yaoundé", "Hôpital Central de Yaoundé", "CHU de Yaoundé"],
-    "Littoral": ["Hôpital Général de Douala", "Hôpital Laquintinie"],
-    "Est": ["Hôpital Régional de Bertoua"], "Extrême-Nord": ["Hôpital Régional de Maroua"],
-    "Nord": ["Hôpital Régional de Garoua"], "Nord-Ouest": ["Hôpital Régional de Bamenda"],
+    "Centre": ["Hôpital Général de Yaoundé", "Hôpital Central de Yaoundé", "CHU", "Gynéco-Obstétrique"],
+    "Littoral": ["Hôpital Général de Douala", "Hôpital Laquintinie", "Hôpital de Bonassama"],
+    "Extrême-Nord": ["Hôpital Régional de Maroua", "Hôpital de Kousseri"],
+    "Nord": ["Hôpital Régional de Garoua"], "Est": ["Hôpital Régional de Bertoua"],
     "Ouest": ["Hôpital Régional de Bafoussam"], "Sud": ["Hôpital Régional d'Ebolowa"],
-    "Sud-Ouest": ["Hôpital Régional de Buea"]
+    "Nord-Ouest": ["Hôpital Régional de Bamenda"], "Sud-Ouest": ["Hôpital Régional de Buea"]
 }
 
-# --- DESIGN CSS (REPRODUCTION EXACTE DE VOTRE DERNIÈRE IMAGE) ---
+# --- DESIGN CSS (BULLES ULTRA-LARGES ET MÉLANGE BLANC/BLEU) ---
 st.markdown("""
     <style>
     /* Fond global : Hôpital Général de Yaoundé */
     .stApp {
-        background: linear-gradient(rgba(0, 20, 50, 0.85), rgba(0, 20, 50, 0.85)), 
+        background: linear-gradient(rgba(0, 20, 50, 0.8), rgba(0, 20, 50, 0.8)), 
                     url('https://leconomiste.cm/wp-content/uploads/2022/08/Hôpital-général-de-Yaoundé.jpg');
         background-size: cover; background-attachment: fixed; color: white;
     }
 
-    /* TITRE ET TEXTES D'ACCUEIL */
-    .title-main { text-align: center; font-size: 70px; font-weight: 900; margin-bottom: 0px; }
-    .subtitle-main { text-align: center; font-size: 20px; margin-bottom: 50px; opacity: 0.9; }
-    .nav-header { text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
+    /* TITRES */
+    .title-main { text-align: center; font-size: 80px; font-weight: 900; color: white; margin-bottom: 0px; }
+    .subtitle-main { text-align: center; font-size: 22px; color: white; margin-bottom: 40px; opacity: 0.9; }
+    .nav-header { text-align: center; font-size: 28px; font-weight: bold; color: white; margin-bottom: 30px; text-transform: uppercase; }
 
-    /* LES TROIS BULLES (FORMAT RECTANGULAIRE EXACT) */
-    div.nav-block .stButton > button {
-        height: 280px !important;
-        width: 100% !important;
-        background-color: rgba(26, 51, 82, 0.6) !important; /* Bleu marine semi-transparent */
+    /* LES BULLES GÉANTES (MÉLANGE BLEU MARINE ET BLANC) */
+    div.nav-container .stButton > button {
+        height: 320px !important; /* Plus haute */
+        width: 100% !important;   /* Plus large */
+        /* MÉLANGE DE COULEURS : Dégradé du Bleu Marine vers le Blanc/Gris clair */
+        background: linear-gradient(135deg, #1a3352 0%, #1a3352 50%, #ffffff 100%) !important;
         color: white !important;
-        border: 2px solid white !important; /* Bordure blanche fine */
-        border-radius: 20px !important;
-        font-size: 24px !important;
+        border: 2px solid white !important;
+        border-radius: 25px !important;
+        font-size: 26px !important;
         font-weight: bold !important;
+        white-space: pre-wrap !important;
+        transition: 0.4s !important;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        white-space: pre-wrap !important;
-        line-height: 1.5 !important;
-        transition: 0.3s !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
     }
 
-    div.nav-block .stButton > button:hover {
-        background-color: #1a3352 !important;
-        border-color: white !important;
-        transform: translateY(-5px) !important;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+    /* Changement de couleur du texte sur la partie blanche au survol */
+    div.nav-container .stButton > button:hover {
+        transform: translateY(-15px) scale(1.02) !important;
+        background: linear-gradient(135deg, #ffffff 0%, #1a3352 50%, #1a3352 100%) !important;
+        color: #1a3352 !important;
+        border-color: #e1395f !important;
     }
 
     /* PETIT BOUTON RETOUR RECTANGULAIRE */
     .back-btn .stButton > button {
-        height: 35px !important; width: 100px !important; font-size: 12px !important;
-        background-color: rgba(255, 255, 255, 0.1) !important; border-radius: 4px !important;
+        height: 35px !important; 
+        width: 120px !important; 
+        font-size: 13px !important;
+        background-color: rgba(255, 255, 255, 0.2) !important; 
         border: 1px solid white !important;
+        border-radius: 5px !important;
+        color: white !important;
     }
 
-    /* Info cards stats */
+    /* Boites d'infos stats */
     .info-card {
-        background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 15px; 
-        color: #1a1a1a; margin-bottom: 20px; border-left: 8px solid #e1395f;
+        background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 20px; 
+        color: #1a1a1a; margin-bottom: 20px; border-left: 10px solid #e1395f;
     }
     label { color: white !important; font-weight: bold; }
+    .white-box { background: white; padding: 40px; border-radius: 20px; color: black; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- BASE DE DONNÉES ---
-def get_connection(): return sqlite3.connect('patient_plus_vfinal.db', check_same_thread=False)
+def get_connection(): return sqlite3.connect('patient_plus_final_national.db', check_same_thread=False)
 def init_db():
-    conn = get_connection()
-    c = conn.cursor()
+    conn = get_connection(); c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS rapports (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     nom TEXT, prenom TEXT, email TEXT, region TEXT, hopital TEXT, 
                     motif TEXT, attente INTEGER, eval_inf TEXT, eval_med TEXT, 
                     suggestions TEXT, date_soumission DATETIME)''')
-    conn.commit()
-    conn.close()
+    conn.commit(); conn.close()
 init_db()
 
 # --- PAGE 1 : ACCUEIL ---
 if st.session_state.page == "Accueil":
     st.markdown("<div class='title-main'>PATIENT PLUS</div>", unsafe_allow_html=True)
-    st.markdown("<div class='subtitle-main'>Amélioration du traitement de service dans les services d'urgence.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='subtitle-main'>Système National d'Amélioration du Traitement dans les Services d'Urgence</div>", unsafe_allow_html=True)
 
-    # Statistiques directes
-    conn = get_connection()
-    df = pd.read_sql_query("SELECT * FROM rapports", conn)
-    conn.close()
+    # Dashboard automatique
+    conn = get_connection(); df = pd.read_sql_query("SELECT * FROM rapports", conn); conn.close()
     if not df.empty:
         c1, c2, c3 = st.columns(3)
         c1.metric("Audits", len(df)), c2.metric("Attente Moy.", f"{round(df['attente'].mean(),1)}m"), c3.metric("Régions", df['region'].nunique())
 
     col_a, col_b = st.columns(2)
-    with col_a: st.markdown('<div class="info-card"><h4>Hôpitaux Publics</h4><p>Analyse des établissements pour optimiser la performance nationale.</p></div>', unsafe_allow_html=True)
-    with col_b: st.markdown('<div class="info-card"><h4>Maternité</h4><p>Analyse des naissances assistées pour renforcer la sécurité.</p></div>', unsafe_allow_html=True)
+    with col_a: st.markdown('<div class="info-card"><h4>Performance</h4><p>Analyse des 172 établissements publics camerounais.</p></div>', unsafe_allow_html=True)
+    with col_b: st.markdown('<div class="info-card"><h4>Maternité</h4><p>Sécurisation des 35,9% de naissances hors milieu médical.</p></div>', unsafe_allow_html=True)
 
     st.markdown("<div class='nav-header'>NAVIGUER DANS L'APPLICATION</div>", unsafe_allow_html=True)
 
-    # --- LES TROIS BULLES EXACTES (NAVIGATION) ---
-    st.markdown('<div class="nav-block">', unsafe_allow_html=True)
+    # --- LES TROIS BULLES ULTRA-LARGES DÉGRADÉES ---
+    st.markdown('<div class="nav-container">', unsafe_allow_html=True)
     n1, n2, n3 = st.columns(3)
     with n1:
-        st.button("📝\n\nAUDIT\n\nParticiper à l'enquête", on_click=lambda: changer_page("Audit"))
+        st.button("📝 AUDIT\n\nParticiper à l'enquête", on_click=lambda: changer_page("Audit"))
     with n2:
-        st.button("🔐\n\nADMIN\n\nEspace Enquêteur", on_click=lambda: changer_page("Admin"))
+        st.button("🔐 ADMIN\n\nEspace Enquêteur", on_click=lambda: changer_page("Admin"))
     with n3:
-        st.button("ℹ️\n\nINFOS\n\nÀ propos du projet", on_click=lambda: changer_page("Infos"))
+        st.button("ℹ️ INFOS\n\nÀ propos du projet", on_click=lambda: changer_page("Infos"))
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- PAGE 2 : AUDIT ---
@@ -145,22 +147,24 @@ elif st.session_state.page == "Audit":
             c.execute("INSERT INTO rapports (nom, prenom, email, region, hopital, attente, eval_inf, eval_med, suggestions, date_soumission) VALUES (?,?,?,?,?,?,?,?,?,?,?)", 
                      (nom, prenom, email, reg, hop, attente, e_inf, e_med, sug, datetime.now()))
             conn.commit(); conn.close()
-            st.success("Données transmises."); changer_page("Accueil")
+            st.success("Transmis."); changer_page("Accueil")
 
 # --- PAGE 3 : ADMIN ---
 elif st.session_state.page == "Admin":
     st.markdown('<div class="back-btn">', unsafe_allow_html=True)
     st.button("RETOUR", on_click=lambda: changer_page("Accueil"))
     st.markdown('</div>', unsafe_allow_html=True)
-    pwd = st.text_input("Code Enquêteur", type="password")
-    if st.button("DÉVERROUILLER"):
+    pwd = st.text_input("Code", type="password")
+    if st.button("ACCÉDER"):
         if pwd == "admin123":
             conn = get_connection(); df = pd.read_sql_query("SELECT * FROM rapports", conn); conn.close()
+            st.markdown("<div class='white-box'>", unsafe_allow_html=True)
             st.dataframe(df)
+            st.markdown("</div>", unsafe_allow_html=True)
 
 # --- PAGE 4 : INFOS ---
 elif st.session_state.page == "Infos":
     st.markdown('<div class="back-btn">', unsafe_allow_html=True)
     st.button("RETOUR", on_click=lambda: changer_page("Accueil"))
     st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown("<div style='background:white; padding:30px; border-radius:15px; color:black;'>Patient Plus est une plateforme d'audit national au Cameroun.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='white-box'><h3>À propos</h3><p>Patient Plus est la plateforme d'audit citoyen pour le Cameroun.</p></div>", unsafe_allow_html=True)
