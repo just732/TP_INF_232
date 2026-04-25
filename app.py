@@ -5,72 +5,81 @@ import sqlite3
 from datetime import datetime
 
 # --- CONFIGURATION DE LA PAGE ---
-st.set_page_config(page_title="Portail National de Santé - Audit Centralisé", layout="wide")
+st.set_page_config(page_title="Patient Plus - Audit Cameroun", layout="wide")
 
-# --- DESIGN PROFESSIONNEL (STYLE LANDING PAGE) ---
-st.markdown("""
+# --- DESIGN "PATIENT PLUS" (Inspiré de l'image) ---
+st.markdown(f"""
     <style>
-    .stApp { background-color: #ffffff; }
-    
-    /* Bannière d'accueil */
-    .hero-banner {
-        background: linear-gradient(rgba(0, 43, 92, 0.8), rgba(0, 43, 92, 0.8)), 
-                    url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=2000');
-        background-size: cover;
-        background-position: center;
-        padding: 80px 40px;
-        color: white;
-        text-align: center;
-        border-radius: 0 0 40px 40px;
-        margin-bottom: 30px;
-    }
-    .hero-banner h1 { font-size: 50px !important; font-weight: 700; }
-    
-    /* Style des Onglets */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        background-color: #f1f4f8;
-        padding: 10px;
-        border-radius: 15px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        background-color: white;
-        border-radius: 10px;
-        color: #002b5c;
-        font-weight: bold;
-    }
-    
-    /* Bulles d'information */
-    .info-card {
-        background-color: #ffffff;
+    /* Palette de couleurs de l'image */
+    :root {{
+        --main-blue: #39559e;
+        --light-blue: #5774ba;
+        --accent-red: #e1395f;
+        --soft-gray: #d0ced0;
+        --white: #ffffff;
+    }}
+
+    .stApp {{
+        background: linear-gradient(180deg, var(--main-blue) 0%, var(--light-blue) 100%);
+        color: var(--white);
+    }}
+
+    /* Style des conteneurs (Bulles/Cartes) */
+    .app-card {{
+        background-color: var(--white);
+        border-radius: 20px;
         padding: 25px;
-        border-radius: 15px;
-        border-left: 8px solid #002b5c;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        color: #333;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         margin-bottom: 20px;
-    }
+    }}
+
+    /* Logo et Titre */
+    .logo-container {{
+        text-align: center;
+        margin-bottom: 30px;
+    }}
+    .logo-heart {{
+        font-size: 80px;
+        color: var(--white);
+    }}
+
+    /* Formulaire Style */
+    label {{ color: var(--white) !important; font-weight: bold; font-size: 16px; }}
+    .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div {{
+        border-radius: 10px !important;
+    }}
+
+    /* Boutons Rouges (Comme le bouton LOG IN / SIGN UP) */
+    .stButton>button {{
+        background-color: var(--accent-red) !important;
+        color: white !important;
+        border-radius: 50px !important;
+        border: none !important;
+        padding: 15px 40px !important;
+        font-weight: bold !important;
+        width: 100%;
+        font-size: 18px !important;
+        text-transform: uppercase;
+    }}
     
-    /* Formulaire */
-    .stForm {
-        background-color: #f8f9fa !important;
-        border-radius: 20px !important;
-        padding: 30px !important;
-    }
+    h1, h2, h3 {{ color: var(--white) !important; text-align: center; }}
     </style>
     """, unsafe_allow_html=True)
 
 # --- BASE DE DONNÉES ---
 def get_connection():
-    return sqlite3.connect('audit_sante_national.db', check_same_thread=False)
+    return sqlite3.connect('patient_plus_cmr.db', check_same_thread=False)
 
 def init_db():
     conn = get_connection()
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS rapports (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom TEXT, prenom TEXT, domicile TEXT, metier TEXT, raison_visite TEXT,
-                    nom_hopital TEXT, temps_urgence INTEGER, attitude_globale TEXT,
+                    nom TEXT, prenom TEXT, age INTEGER, sexe TEXT, 
+                    metier TEXT, date_naissance TEXT, domicile TEXT, email TEXT,
+                    raison_visite TEXT, maladie TEXT, nom_hopital TEXT, service_hopital TEXT,
+                    temps_urgence INTEGER, attitude_globale TEXT,
                     eval_infirmieres TEXT, justif_infirmieres TEXT,
                     eval_medecins TEXT, justif_medecins TEXT,
                     rdv_ligne TEXT, suggestions TEXT, date_soumission DATETIME)''')
@@ -79,135 +88,125 @@ def init_db():
 
 init_db()
 
-# --- HEADER ET OBJECTIF ---
-st.markdown("""
-    <div class="hero-banner">
-        <h1>PORTAIL NATIONAL DE LA SANTÉ PUBLIQUE</h1>
-        <p>Audit institutionnel et analyse quantitative de la performance hospitalière</p>
-    </div>
+# --- NAVIGATION STYLE MOBILE ---
+st.sidebar.markdown("<h1 style='color:white;'>Patient Plus</h1>", unsafe_allow_html=True)
+page = st.sidebar.radio("Navigation", ["🏠 Accueil", "📝 Formulaire d'Audit", "📊 Statistiques Cameroun"])
+
+# --- PAGE 1 : ACCUEIL ---
+if page == "🏠 Accueil":
+    st.markdown("""
+        <div class="logo-container">
+            <div class="logo-heart">🤍</div>
+            <h1 style='margin-top:0;'>Patient Plus</h1>
+            <p style='font-style: italic;'> "Where compassion and healthcare meet" </p>
+        </div>
+        
+        <div class="app-card" style="background-color:rgba(255,255,255,0.9);">
+            <h3 style="color:#39559e !important;">Objectif de l'application</h3>
+            <p style="font-size:18px; color:#444;">
+                Cette application a pour but d’améliorer la qualité du traitement de service dans nos services d’urgence et hospitaliers du pays. 
+                Elle permet à chaque citoyen de devenir acteur de la réforme sanitaire.
+            </p>
+        </div>
     """, unsafe_allow_html=True)
 
-# --- SECTION 1 : INFORMATIONS ET SERVICES (ONGLETS) ---
-st.header("I. Informations Sanitaires et Présentation des Services")
-
-tab_oms, tab_urgences, tab_specialite, tab_maternite = st.tabs([
-    "🌍 Directives & Réformes (OMS)", 
-    "🚑 Service des Urgences", 
-    "🩺 Consultations Spécialisées", 
-    "👶 Maternité & Pédiatrie"
-])
-
-with tab_oms:
-    st.markdown("""
-        <div class="info-card">
-            <h4>Règles Essentielles de l'OMS</h4>
-            <p>L'Organisation Mondiale de la Santé préconise une couverture santé universelle (CSU) basée sur la transparence des données et l'accès équitable aux soins de qualité. 
-            Les réformes nationales actuelles visent la modernisation des plateaux techniques et la digitalisation du parcours patient.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-with tab_urgences:
-    st.markdown("""
-        <div class="info-card">
-            <h4>Prise en charge des Urgences</h4>
-            <p>Service opérationnel 24h/24 et 7j/7. Notre audit mesure spécifiquement le temps de réaction entre l'arrivée du patient et sa première consultation par un interne ou un médecin spécialiste.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-with tab_specialite:
-    st.markdown("""
-        <div class="info-card">
-            <h4>Médecine Spécialisée</h4>
-            <p>Services de Cardiologie, Neurologie, Chirurgie et Médecine Interne. Les rendez-vous sont gérés selon la priorité clinique et la disponibilité des praticiens de référence.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-with tab_maternite:
-    st.markdown("""
-        <div class="info-card">
-            <h4>Santé de la Mère et de l'Enfant</h4>
-            <p>Programmes de vaccination, suivis prénataux et néonatals conformes aux protocoles internationaux de sécurité sanitaire.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-# --- SECTION 2 : FORMULAIRE D'AUDIT CENTRALISÉ ---
-st.markdown("---")
-st.header("II. Collecte des Données d'Audit")
-
-with st.form("form_audit_national"):
-    st.subheader("1. Identification et Profil de l'Usager")
+    st.markdown("### 🇨🇲 Statistiques de Santé au Cameroun")
     c1, c2 = st.columns(2)
-    nom = c1.text_input("Nom de famille")
-    prenom = c2.text_input("Prénom")
-    domicile = c1.text_input("Lieu de résidence")
-    metier = c2.text_input("Profession")
-    raison = st.text_area("Motif médical de la consultation (Description des symptômes)")
+    with c1:
+        st.markdown("""
+            <div class="app-card">
+                <h2 style="color:#e1395f !important;">65%</h2>
+                <p style="color:#444;">des patients sont traités dans les hôpitaux publics chaque année au Cameroun.</p>
+            </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        st.markdown("""
+            <div class="app-card">
+                <h2 style="color:#39559e !important;">35%</h2>
+                <p style="color:#444;">des consultations concernent les services d'urgence et les maternités.</p>
+            </div>
+        """, unsafe_allow_html=True)
 
-    st.subheader("2. Évaluation de l'Établissement")
-    # C'est ici que l'utilisateur choisit son hôpital
-    liste_hopitaux = ["Hôpital Général", "CHU Central", "Hôpital de District", "Clinique Conventionnée"]
-    hopital_choisi = st.selectbox("Dans quel établissement avez-vous reçu des soins ?", liste_hopitaux)
+# --- PAGE 2 : FORMULAIRE D'AUDIT ---
+elif page == "📝 Formulaire d'Audit":
+    st.markdown("<h1>Audit de Qualité Hospitalière</h1>", unsafe_allow_html=True)
     
-    t_attente = st.slider("Temps d'attente estimé aux urgences (en minutes)", 0, 300, 30)
-    attitude_g = st.selectbox("Attitude générale du personnel d'accueil", ["Insuffisante", "Moyenne", "Satisfaisante", "Excellente"])
+    with st.form("audit_form", clear_on_submit=True):
+        st.markdown("### 👤 Identification du Patient")
+        col1, col2 = st.columns(2)
+        nom = col1.text_input("Nom")
+        prenom = col2.text_input("Prénom")
+        age = col1.number_input("Âge", 0, 120, 25)
+        sexe = col2.selectbox("Sexe", ["Masculin", "Féminin"])
+        metier = col1.text_input("Métier")
+        dob = col2.date_input("Date de naissance")
+        domicile = col1.text_input("Lieu de résidence (Ville/Quartier)")
+        email = col2.text_input("Adresse Email")
 
-    st.subheader("3. Audit Spécifique du Personnel")
-    col_inf, col_med = st.columns(2)
-    with col_inf:
-        st.markdown("**Personnel Infirmier**")
-        e_inf = st.select_slider("Qualité technique (Infirmiers)", options=["1", "2", "3", "4", "5"], key="inf")
-        j_inf = st.text_area("Justification de la note (Infirmiers)")
-    with col_med:
-        st.markdown("**Corps Médical**")
-        e_med = st.select_slider("Expertise et écoute (Médecins)", options=["1", "2", "3", "4", "5"], key="med")
-        j_med = st.text_area("Justification de la note (Médecins)")
+        st.markdown("### 🏥 Contexte Médical")
+        c3, c4 = st.columns(2)
+        hopital = c3.selectbox("Hôpital fréquenté", ["Hôpital Central", "Hôpital Général", "Hôpital de Laquintinie", "Hôpital de District", "Autre"])
+        service = c4.text_input("Service (ex: Urgences, Cardiologie, Maternité...)")
+        maladie = st.text_input("Maladie ou motif de consultation")
+        raison_visite = st.text_area("Racontez brièvement votre expérience")
 
-    st.subheader("4. Perspectives et Améliorations")
-    rdv_ligne = st.radio("Souhaitez-vous la mise en place d'un système de rendez-vous en ligne avec un médecin spécifique ?", ["Favorable", "Défavorable"])
-    suggestions = st.text_area("Quelles mesures concrètes préconisez-vous pour améliorer la qualité du service dans cet établissement ?")
+        st.markdown("### ⭐ Évaluation du Personnel")
+        t_attente = st.slider("Temps d'attente (en minutes)", 0, 300, 30)
+        attitude = st.selectbox("Attitude globale du personnel", ["Médiocre", "Passable", "Satisfaisante", "Excellente"])
+        
+        col_inf, col_med = st.columns(2)
+        with col_inf:
+            e_inf = st.select_slider("Note Infirmières", options=["1", "2", "3", "4", "5"])
+            j_inf = st.text_area("Justification (Infirmières)")
+        with col_med:
+            e_med = st.select_slider("Note Médecins", options=["1", "2", "3", "4", "5"])
+            j_med = st.text_area("Justification (Médecins)")
 
-    if st.form_submit_button("VALIDER ET TRANSMETTRE LE RAPPORT"):
-        if nom and prenom and suggestions:
-            conn = get_connection()
-            c = conn.cursor()
-            c.execute('''INSERT INTO rapports (nom, prenom, domicile, metier, raison_visite, 
-                        nom_hopital, temps_urgence, attitude_globale, eval_infirmieres, 
-                        justif_infirmieres, eval_medecins, justif_medecins, rdv_ligne, 
-                        suggestions, date_soumission) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
-                     (nom, prenom, domicile, metier, raison, hopital_choisi, t_attente, 
-                      attitude_g, e_inf, j_inf, e_med, j_med, rdv_ligne, suggestions, datetime.now()))
-            conn.commit()
-            conn.close()
-            st.success("Rapport d'audit transmis avec succès aux autorités sanitaires.")
-        else:
-            st.error("Erreur : Les champs d'identification et les recommandations sont obligatoires.")
+        st.markdown("### 🌐 Digitalisation & Conseils")
+        rdv_ligne = st.radio("Prendre rendez-vous en ligne avec un médecin spécifique vous conviendrait-il ?", ["Oui", "Non"])
+        suggestions = st.text_area("Comment faire pour améliorer la qualité du service selon vous ?")
 
-# --- SECTION 3 : ANALYSE DESCRIPTIVE ---
-st.markdown("---")
-st.header("III. Analyse Descriptive du Système de Santé")
+        if st.form_submit_button("SOUMETTRE MON AUDIT"):
+            if nom and prenom and email:
+                conn = get_connection()
+                c = conn.cursor()
+                c.execute('''INSERT INTO rapports (nom, prenom, age, sexe, metier, date_naissance, domicile, email,
+                            raison_visite, maladie, nom_hopital, service_hopital, temps_urgence, attitude_globale,
+                            eval_infirmieres, justif_infirmieres, eval_medecins, justif_medecins,
+                            rdv_ligne, suggestions, date_soumission) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
+                         (nom, prenom, age, sexe, metier, str(dob), domicile, email, raison_visite, maladie, 
+                          hopital, service, t_attente, attitude, e_inf, j_inf, e_med, j_med, rdv_ligne, suggestions, datetime.now()))
+                conn.commit()
+                conn.close()
+                st.success("✅ Audit transmis avec succès ! Merci de contribuer à la santé au Cameroun.")
+            else:
+                st.error("Veuillez remplir les champs obligatoires (Nom, Prénom, Email).")
 
-conn = get_connection()
-df = pd.read_sql_query("SELECT * FROM rapports", conn)
-conn.close()
+# --- PAGE 3 : STATISTIQUES ---
+elif page == "📊 Statistiques Cameroun":
+    st.markdown("<h1>Résultats de l'Audit National</h1>", unsafe_allow_html=True)
+    
+    conn = get_connection()
+    df = pd.read_sql_query("SELECT * FROM rapports", conn)
+    conn.close()
 
-if df.empty:
-    st.info("Aucune donnée disponible pour l'analyse statistique.")
-else:
-    # Indicateurs clés
-    m1, m2, m3 = st.columns(3)
-    m1.metric("Volume total d'Audits", len(df))
-    m2.metric("Attente Moyenne", f"{round(df['temps_urgence'].mean(), 1)} min")
-    taux = (len(df[df['rdv_ligne'] == "Favorable"]) / len(df)) * 100
-    m3.metric("Adhésion au Digital", f"{round(taux, 1)}%")
+    if df.empty:
+        st.info("Aucune donnée collectée pour le moment.")
+    else:
+        # Style des métriques dans des cartes
+        m1, m2, m3 = st.columns(3)
+        with m1:
+            st.markdown(f'<div class="app-card"><h4>Audits</h4><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
+        with m2:
+            st.markdown(f'<div class="app-card"><h4>Attente Moy.</h4><h2>{round(df["temps_urgence"].mean(), 1)}m</h2></div>', unsafe_allow_html=True)
+        with m3:
+            fav = (len(df[df['rdv_ligne'] == "Oui"]) / len(df)) * 100
+            st.markdown(f'<div class="app-card"><h4>RDV Ligne</h4><h2>{round(fav, 1)}%</h2></div>', unsafe_allow_html=True)
 
-    # Graphique de comparaison par hôpital
-    st.subheader("Performance Temporelle par Établissement")
-    fig = px.bar(df.groupby('nom_hopital')['temps_urgence'].mean().reset_index(), 
-                 x='nom_hopital', y='temps_urgence', 
-                 title="Moyenne des temps d'attente aux urgences par site",
-                 color_discrete_sequence=['#002b5c'])
-    st.plotly_chart(fig, use_container_width=True)
+        st.divider()
+        fig = px.bar(df, x="nom_hopital", y="temps_urgence", color="sexe", title="Temps d'attente par Hôpital et Sexe")
+        st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Préconisations d'amélioration des usagers")
-    st.dataframe(df[['nom_hopital', 'nom', 'suggestions', 'date_soumission']], use_container_width=True)
+        st.subheader("Suggestions d'amélioration collectées")
+        st.dataframe(df[['nom_hopital', 'suggestions', 'date_soumission']], use_container_width=True)
