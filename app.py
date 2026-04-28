@@ -4,14 +4,14 @@ import sqlite3
 from datetime import datetime
 
 # --- CONFIGURATION DE LA PAGE ---
-st.set_page_config(page_title="MediCollect Cameroon", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="MediCollect Cameroun", layout="centered", initial_sidebar_state="collapsed")
 
 # --- INITIALISATION DU STATE ---
 if 'page' not in st.session_state:
-    st.session_state.page = "HOME"
+    st.session_state.page = "ACCUEIL"
 
-def navigate_to(page_name):
-    st.session_state.page = page_name
+def naviguer_vers(nom_page):
+    st.session_state.page = nom_page
     st.rerun()
 
 # --- BASE DE DONNÉES ---
@@ -57,7 +57,7 @@ st.markdown("""
         align-items: center;
     }
 
-    /* --- CARTES DE COLLECTION (PAGE FORMS) --- */
+    /* --- CARTES DE COLLECTION --- */
     .form-card {
         background: white;
         border: 1px solid #E0E0E0;
@@ -114,7 +114,7 @@ st.markdown("""
     .nav-item {
         text-align: center;
         color: #999999;
-        font-size: 12px;
+        font-size: 11px;
         text-decoration: none;
     }
     .nav-item.active {
@@ -129,21 +129,6 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- FORMULAIRE GRAVITÉ --- */
-    .severity-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin: 10px 0;
-    }
-    .severity-btn {
-        border: 1px solid #E0E0E0;
-        border-radius: 10px;
-        padding: 15px;
-        text-align: center;
-        cursor: pointer;
-    }
-    
     /* Cacher les éléments Streamlit inutiles */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -155,17 +140,17 @@ st.markdown("""
 st.markdown(f"""
     <div class="header">
         <div class="header-title">
-            <span style="margin-right:10px;">✚</span> MediCollect Cameroon
+            <span style="margin-right:10px;">✚</span> MediCollect Cameroun
         </div>
         <div style="font-size:24px;">👤</div>
     </div>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# PAGE : ACCUEIL (Image 3)
+# PAGE : ACCUEIL
 # ==========================================
-if st.session_state.page == "HOME":
-    # Image de fond style hero (utilise l'image de l'hôpital que tu as fournie)
+if st.session_state.page == "ACCUEIL":
+    # Image de fond
     st.image("https://upload.wikimedia.org/wikipedia/commons/6/6a/H%C3%B4pital_G%C3%A9n%C3%A9ral_de_Yaound%C3%A9.jpg", use_column_width=True)
     
     st.markdown("""
@@ -176,7 +161,7 @@ if st.session_state.page == "HOME":
     """, unsafe_allow_html=True)
     
     if st.button("Commencer la collecte →"):
-        navigate_to("FORMS")
+        naviguer_vers("FORMULAIRES")
         
     c1, c2 = st.columns(2)
     with c1:
@@ -185,58 +170,58 @@ if st.session_state.page == "HOME":
         st.markdown('<div style="background:#F0F4F8; padding:20px; border-radius:15px; text-align:center;"><h2 style="margin:0; color:#004085;">45</h2><p style="margin:0; font-size:12px;">HÔPITAUX</p></div>', unsafe_allow_html=True)
 
 # ==========================================
-# PAGE : DATA COLLECTION (Image 2)
+# PAGE : LISTE DES FORMULAIRES
 # ==========================================
-elif st.session_state.page == "FORMS":
-    st.markdown("<h3>Data Collection</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#666;'>Select an operational form to begin recording healthcare metrics.</p>", unsafe_allow_html=True)
+elif st.session_state.page == "FORMULAIRES":
+    st.markdown("<h3>Collecte de données</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#666;'>Sélectionnez un formulaire opérationnel pour commencer l'enregistrement.</p>", unsafe_allow_html=True)
     
     # Carte 1 : Admission Urgences
     with st.container():
         st.markdown("""
             <div class="form-card">
-                <div class="priority-tag">High Priority</div>
+                <div class="priority-tag">Priorité Haute</div>
                 <div class="card-icon" style="background:#FFEBEB; color:#FF4D4D;">✱</div>
                 <div style="font-weight:700; font-size:18px;">Admission Urgences</div>
-                <p style="font-size:14px; color:#666;">Record critical patient intake details for emergency room admissions.</p>
+                <p style="font-size:14px; color:#666;">Enregistrez les détails critiques d'admission pour le tri des patients.</p>
             </div>
         """, unsafe_allow_html=True)
-        if st.button("Start Entry →", key="btn_urg"):
-            navigate_to("URGENCE_FORM")
+        if st.button("Démarrer la saisie →", key="btn_urg"):
+            naviguer_vers("URGENCE_FORM")
 
     # Carte 2 : Disponibilité Personnel
     st.markdown("""
         <div class="form-card">
             <div class="card-icon" style="background:#E6FFFA; color:#38B2AC;">👥</div>
             <div style="font-weight:700; font-size:18px;">Disponibilité du Personnel</div>
-            <p style="font-size:14px; color:#666;">Daily staff attendance and shifts tracking for departmental coverage.</p>
-            <div style="color:#004085; font-weight:600; font-size:14px; cursor:pointer;">Update Roster →</div>
+            <p style="font-size:14px; color:#666;">Suivi quotidien des présences et des gardes par département.</p>
+            <div style="color:#004085; font-weight:600; font-size:14px; cursor:pointer;">Mettre à jour la liste →</div>
         </div>
     """, unsafe_allow_html=True)
 
     # Status Sync
     st.markdown("""
         <div class="sync-box">
-            <div style="font-size:12px; font-weight:700; color:#1967D2; letter-spacing:1px;">SYSTEM HEALTH</div>
-            <div style="font-size:20px; font-weight:700; margin-bottom:10px;">Sync Status: Online</div>
-            <p style="font-size:14px; color:#555;">All forms submitted are being synchronized with the Ministry of Public Health database in real-time.</p>
-            <div style="color:#2D9748; font-size:14px;">● Regional Cloud Connected</div>
+            <div style="font-size:11px; font-weight:700; color:#1967D2; letter-spacing:1px;">ÉTAT DU SYSTÈME</div>
+            <div style="font-size:19px; font-weight:700; margin-bottom:10px;">Statut : En ligne</div>
+            <p style="font-size:13px; color:#555;">Tous les formulaires sont synchronisés en temps réel avec la base de données du Ministère de la Santé Publique.</p>
+            <div style="color:#2D9748; font-size:13px;">● Cloud Régional Connecté</div>
         </div>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# PAGE : FORMULAIRE URGENCE (Image 4 & 5)
+# PAGE : FORMULAIRE URGENCE
 # ==========================================
 elif st.session_state.page == "URGENCE_FORM":
-    st.markdown("<p style='color:#004085; font-weight:700; font-size:12px;'>✱ URGENT CARE INTAKE</p>", unsafe_allow_html=True)
-    st.markdown("<h2>Admission Urgences</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#666;'>Formulaire de saisie rapide pour le tri des patients.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#004085; font-weight:700; font-size:12px;'>✱ ADMISSION URGENCES</p>", unsafe_allow_html=True)
+    st.markdown("<h2>Tri des Patients</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#666;'>Formulaire de saisie rapide pour l'orientation hospitalière.</p>", unsafe_allow_html=True)
     
     # Barre de progression
     st.markdown('<div style="width:100%; height:6px; background:#E0E0E0; border-radius:10px;"><div style="width:33%; height:100%; background:#004085; border-radius:10px;"></div></div><br>', unsafe_allow_html=True)
 
     with st.container():
-        heure = st.text_input("Heure d'arrivée", value="02:30 PM")
+        heure = st.text_input("Heure d'arrivée", value="14:30")
         motif = st.text_area("Motif de consultation", placeholder="Décrivez brièvement les symptômes...")
         
         st.markdown("<b>Niveau de gravité</b>", unsafe_allow_html=True)
@@ -246,7 +231,7 @@ elif st.session_state.page == "URGENCE_FORM":
         lit = st.toggle("Lit disponible ? / Confirmer l'espace en salle de tri")
         
         if st.button("Soumettre les données"):
-            # Logique SQL
+            # Enregistrement
             conn = sqlite3.connect('medicollect.db')
             c = conn.cursor()
             p_id = f"CMR-{datetime.now().strftime('%S%M')}-04-12"
@@ -254,48 +239,48 @@ elif st.session_state.page == "URGENCE_FORM":
                       (heure, motif, gravite, lit, p_id, "Vérifié"))
             conn.commit()
             conn.close()
-            st.success("Données enregistrées !")
+            st.success("Données envoyées avec succès !")
 
     # Footer du formulaire
     st.markdown(f"""
         <div style="background:#F0F4F8; padding:15px; border-radius:12px; margin-top:20px; display:flex; align-items:center;">
             <div style="font-size:24px; margin-right:15px;">👤</div>
             <div>
-                <div style="font-size:12px; color:#666;">Patient ID</div>
+                <div style="font-size:11px; color:#666;">ID Patient</div>
                 <div style="font-weight:700;">CMR-992-04-12</div>
             </div>
         </div>
         <div style="background:#F0F4F8; padding:15px; border-radius:12px; margin-top:10px; display:flex; align-items:center;">
             <div style="font-size:24px; margin-right:15px; color:#2D9748;">🛡️</div>
             <div>
-                <div style="font-size:12px; color:#666;">Statut</div>
+                <div style="font-size:11px; color:#666;">Statut</div>
                 <div style="color:#2D9748; font-weight:700;">Vérifié</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
     
     if st.button("← Retour"):
-        navigate_to("FORMS")
+        naviguer_vers("FORMULAIRES")
 
 # ==========================================
 # BARRE DE NAVIGATION FIXE (Bas de l'écran)
 # ==========================================
 st.markdown(f"""
     <div class="nav-bar">
-        <a href="javascript:void(0)" class="nav-item {'active' if st.session_state.page == 'HOME' else ''}">
+        <div class="nav-item {'active' if st.session_state.page == 'ACCUEIL' else ''}" onclick="window.location.reload()">
             <div style="font-size:20px;">🏠</div>
-            HOME
-        </a>
-        <a href="javascript:void(0)" class="nav-item {'active' if st.session_state.page in ['FORMS', 'URGENCE_FORM'] else ''}">
+            ACCUEIL
+        </div>
+        <div class="nav-item {'active' if st.session_state.page in ['FORMULAIRES', 'URGENCE_FORM'] else ''}">
             <div style="font-size:20px;">📋</div>
-            FORMS
-        </a>
-        <a href="javascript:void(0)" class="nav-item">
+            FORMULAIRES
+        </div>
+        <div class="nav-item">
             <div style="font-size:20px;">📊</div>
-            DASHBOARD
-        </a>
+            ANALYSES
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
-# Ajout d'espace pour que la nav bar ne cache pas le contenu
-st.markdown("<br><br><br>", unsafe_allow_html=True)
+# Espace pour éviter que la barre de navigation ne cache le contenu
+st.markdown("<br><br><br><br>", unsafe_allow_html=True)
