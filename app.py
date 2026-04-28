@@ -25,40 +25,54 @@ def init_db():
 
 init_db()
 
-# --- STYLE CSS (BLEU NUIT & ÉLÉGANCE) ---
+# --- STYLE CSS (BLEU NUIT & DESIGN WEB EN BULLES) ---
 st.markdown("""
     <style>
-    /* Global - Bleu Nuit */
+    /* Global - Midnight Blue */
     .stApp {
         background-color: #001122;
         color: #e0e0e0;
     }
     
-    /* Barre de Navigation Fixe */
+    /* Navigation */
     .nav-bar {
         background-color: #001a33;
-        padding: 10px;
+        padding: 10px 5%;
         border-bottom: 2px solid #00d4ff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
     
-    h1, h2, h3, h4 { color: #00d4ff !important; }
+    /* Bulles / Cartes d'information */
+    .info-bubble {
+        background: rgba(0, 212, 255, 0.08);
+        border: 1px solid #00d4ff;
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: 0.3s;
+        height: 100%;
+    }
+    .info-bubble:hover {
+        background: rgba(0, 212, 255, 0.15);
+        transform: translateY(-5px);
+    }
     
-    /* Boutons personnalisés */
+    h1, h2, h3, h4 { color: #00d4ff !important; font-weight: bold !important; }
+    
     .stButton>button {
         background-color: #00d4ff !important; color: #001122 !important;
         font-weight: bold !important; border-radius: 25px !important;
         border: none !important; width: 100% !important;
     }
 
-    /* Champs de saisie */
-    input { background-color: white !important; color: black !important; border-radius: 10px !important; }
-    
-    /* Box pour les questions d'audit */
-    .question-card {
-        background-color: rgba(0, 212, 255, 0.1);
-        padding: 15px; border-radius: 10px; border-left: 5px solid #00d4ff; margin-bottom: 10px;
+    input, textarea, .stSelectbox, .stDateInput { 
+        background-color: white !important; 
+        color: black !important; 
+        border-radius: 10px !important; 
     }
-
+    
     #MainMenu, footer, header {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
@@ -70,189 +84,177 @@ if 'user_connecte' not in st.session_state: st.session_state.user_connecte = Non
 def naviguer(nom_page):
     st.session_state.page = nom_page
 
-# ==========================================
-# BARRE DE NAVIGATION (FONCTIONNELLE)
-# ==========================================
-st.markdown("<div class='nav-bar'>", unsafe_allow_html=True)
+# --- BARRE DE NAVIGATION (FONCTIONNELLE) ---
 cols = st.columns([2, 1, 1, 1, 1])
 with cols[0]: st.markdown("<h2 style='margin:0;'>PATIENT <span style='color:white;'>PLUS</span></h2>", unsafe_allow_html=True)
 if cols[1].button("ACCUEIL"): naviguer("Accueil")
 if cols[2].button("SERVICES"): naviguer("Services")
-if cols[3].button("STATISTIQUES"): naviguer("Stats")
+if cols[3].button("STATS"): naviguer("Stats")
 if st.session_state.user_connecte:
     if cols[4].button("DÉCONNEXION"): st.session_state.user_connecte = None; naviguer("Accueil")
 else:
     if cols[4].button("S'IDENTIFIER"): naviguer("Auth")
-st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# PAGE D'ACCUEIL : DISCOURS ET PRÉSENTATION
+# PAGE D'ACCUEIL : DESIGN SITE WEB (BULLES)
 # ==========================================
 if st.session_state.page == "Accueil":
-    st.title("Votre voix peut transformer notre système de santé")
-    st.markdown("""
-    ### Bienvenue sur Patient Plus
-    **Patient Plus** est votre plateforme citoyenne dédiée à la collecte de données sur la qualité de service des hôpitaux du Cameroun. 
+    st.markdown("<h1 style='text-align:center;'>Votre expérience est la clé d'une santé d'excellence</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:18px;'>Rejoignez la plateforme Patient Plus et aidez-nous à transformer nos hôpitaux avec confiance et sécurité.</p>", unsafe_allow_html=True)
     
-    Notre mission est simple : **Écouter pour Améliorer**. En partageant votre expérience, vous offrez aux autorités de santé les outils nécessaires pour identifier les forces et corriger les faiblesses de nos structures hospitalières (réactivité, hygiène, sécurité, logistique).
-    
-    **Pourquoi répondre à nos formulaires ?**
-    Votre témoignage est une pierre précieuse pour l'édifice d'une santé de qualité pour tous. Répondez avec **totale confiance** : vos données sont traitées de manière strictement confidentielle et sécurisée. Seules les tendances statistiques sont analysées pour porter votre message au plus haut niveau.
-    
-    **Rejoignez-nous dès maintenant et soyez acteur de l'excellence hospitalière au Cameroun !**
-    """)
+    # --- RANGÉE DE BULLES 1 : LE BUT ---
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"""<div class="info-bubble">
+            <h3>🛡️ But de la Plateforme</h3>
+            <p><b>Patient Plus</b> est une initiative nationale pour collecter des données réelles sur la qualité de service hospitalier. 
+            En partageant votre parcours, vous permettez aux autorités d'identifier précisément où agir (délais, hygiène, accueil).</p>
+            <p><i>"Votre voix n'est plus perdue, elle devient un outil de gestion."</i></p>
+        </div>""", unsafe_allow_html=True)
+    with col2:
+        st.markdown(f"""<div class="info-bubble">
+            <h3>📈 Statistiques & Performance</h3>
+            <ul>
+                <li><b>48% :</b> Score moyen d'efficience des hôpitaux publics.</li>
+                <li><b>94% :</b> Part des frais de santé supportée directement par les familles.</li>
+                <li><b>Objectif :</b> Réduire les coûts et améliorer la prise en charge maternelle.</li>
+            </ul>
+        </div>""", unsafe_allow_html=True)
+
+    # --- RANGÉE DE BULLES 2 : TOPOGRAPHIE DES HÔPITAUX ---
+    st.markdown("<h2>Nos établissements de référence</h2>", unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown('<div class="info-bubble"><h4>HGY / HGD</h4><p>Hôpitaux Généraux (Yaoundé/Douala). Référence en oncologie, chirurgie et dialyse.</p></div>', unsafe_allow_html=True)
+    with c2:
+        st.markdown('<div class="info-bubble"><h4>Laquintinie / HCY</h4><p>Hôpitaux Centraux. Centres névralgiques pour les urgences traumatiques et la proximité.</p></div>', unsafe_allow_html=True)
+    with c3:
+        st.markdown('<div class="info-bubble"><h4>HGOPY / D</h4><p>Hôpitaux Gynéco-Obstétriques. Priorité absolue à la santé de la mère et de l\'enfant.</p></div>', unsafe_allow_html=True)
+
     st.image("https://upload.wikimedia.org/wikipedia/commons/6/6a/H%C3%B4pital_G%C3%A9n%C3%A9ral_de_Yaound%C3%A9.jpg", use_column_width=True)
     
     st.markdown("<center>", unsafe_allow_html=True)
     if not st.session_state.user_connecte:
-        if st.button("CRÉER MON COMPTE ET REMPLIR UN FORMULAIRE"): naviguer("Auth")
+        if st.button("✨ CRÉER MON COMPTE ET CONTRIBUER MAINTENANT"): naviguer("Auth")
     st.markdown("</center>", unsafe_allow_html=True)
 
 # ==========================================
-# PAGE STATISTIQUES (DIAGRAMMES & CAMEMBERTS)
+# PAGE STATISTIQUES (DIAGRAMMES)
 # ==========================================
 elif st.session_state.page == "Stats":
-    st.title("📊 Statistiques Nationales de Qualité")
-    conn = sqlite3.connect('patient_plus_final.db')
-    df = pd.read_sql_query("SELECT * FROM formulaires", conn)
-    conn.close()
-
-    if df.empty:
-        st.info("Aucune donnée disponible pour le moment. Les statistiques s'afficheront après les premiers formulaires.")
+    st.title("📊 Baromètre National de la Qualité")
+    conn = sqlite3.connect('patient_plus_final.db'); df = pd.read_sql_query("SELECT * FROM formulaires", conn); conn.close()
+    if df.empty: st.info("Les données s'afficheront après les premiers formulaires.")
     else:
-        st.markdown("##### Ces graphiques représentent les données collectées auprès des utilisateurs de la plateforme.")
-        c1, c2 = st.columns(2)
-        with c1:
-            # Diagramme en barres : Note moyenne par hôpital saisi
-            moyennes = df.groupby('hopital')['note'].mean().reset_index()
-            fig1 = px.bar(moyennes, x='hopital', y='note', title="Moyenne de satisfaction par Hôpital", 
-                          template="plotly_dark", color_discrete_sequence=['#00d4ff'])
+        col1, col2 = st.columns(2)
+        with col1:
+            fig1 = px.bar(df.groupby('hopital')['note'].mean().reset_index(), x='hopital', y='note', title="Note de satisfaction / 5", template="plotly_dark", color_discrete_sequence=['#00d4ff'])
             st.plotly_chart(fig1, use_container_width=True)
-        with c2:
-            # Camembert : Répartition par service
-            fig2 = px.pie(df, names='service', title="Répartition des audits par Pôle", 
-                          hole=0.4, template="plotly_dark")
+        with col2:
+            fig2 = px.pie(df, names='service', title="Répartition par Pôle Médical", hole=0.4, template="plotly_dark")
             st.plotly_chart(fig2, use_container_width=True)
 
 # ==========================================
 # AUTHENTIFICATION
 # ==========================================
 elif st.session_state.page == "Auth":
-    st.title("🔐 Espace Patient")
+    st.title("🔐 Espace Sécurisé")
     choix = st.radio("Action :", ["Se connecter", "Créer un compte"])
-    user = st.text_input("Identifiant (Email/Téléphone)")
-    mdp = st.text_input("Mot de passe", type="password")
-    
-    if choix == "Créer un compte":
-        nom = st.text_input("Nom")
-        prenom = st.text_input("Prénom")
-        if st.button("S'INSCRIRE"):
+    u = st.text_input("Identifiant (Email/Téléphone)")
+    p = st.text_input("Mot de passe", type="password")
+    if st.button("VALIDER"):
+        if choix == "Créer un compte":
+            nom = st.text_input("Nom"); prenom = st.text_input("Prénom")
             conn = sqlite3.connect('patient_plus_final.db'); c = conn.cursor()
-            try:
-                c.execute('INSERT INTO utilisateurs VALUES (?,?,?,?)', (user, hasher_mdp(mdp), nom, prenom))
-                conn.commit(); st.success("Compte créé avec succès !")
-            except: st.error("Identifiant déjà pris.")
+            try: c.execute('INSERT INTO utilisateurs VALUES (?,?,?,?)', (u, hasher_mdp(p), u, "")); conn.commit(); st.success("Compte créé avec succès !")
+            except: st.error("Erreur : Identifiant déjà utilisé.")
             conn.close()
-    else:
-        if st.button("SE CONNECTER"):
+        else:
             conn = sqlite3.connect('patient_plus_final.db'); c = conn.cursor()
-            c.execute('SELECT * FROM utilisateurs WHERE username=? AND password=?', (user, hasher_mdp(mdp)))
-            if c.fetchone():
-                st.session_state.user_connecte = user
-                naviguer("Formulaire"); st.rerun()
+            c.execute('SELECT * FROM utilisateurs WHERE username=? AND password=?', (u, hasher_mdp(p)))
+            if c.fetchone(): st.session_state.user_connecte = u; naviguer("Formulaire"); st.rerun()
             else: st.error("Identifiants incorrects.")
             conn.close()
 
 # ==========================================
-# PAGE FORMULAIRE (DYNAMIQUE)
+# PAGE FORMULAIRE : INTERACTIF ET DYNAMIQUE
 # ==========================================
 elif st.session_state.page == "Formulaire":
     if not st.session_state.user_connecte: naviguer("Auth"); st.rerun()
 
-    st.title("📝 Formulaire de Qualité Hospitalière")
-    with st.form("form_global"):
-        st.subheader("1. Informations Personnelles")
-        col_id1, col_id2 = st.columns(2)
-        nom_f = col_id1.text_input("Nom")
-        pre_f = col_id2.text_input("Prénom")
+    st.title("📝 Remplir mon formulaire de satisfaction")
+    
+    # 1. Identification
+    st.subheader("1. Identification")
+    c_id1, c_id2 = st.columns(2)
+    nom_f = c_id1.text_input("Nom")
+    prenom_f = c_id2.text_input("Prénom")
+    
+    # CALENDRIER 1915 À 2026
+    dob_f = c_id1.date_input("Date de naissance", 
+                               min_value=datetime(1915, 1, 1), 
+                               max_value=datetime(2026, 12, 31),
+                               value=datetime(1995, 1, 1))
+    contact_f = c_id2.text_input("Numéro de téléphone / Email")
+
+    # 2. Localisation
+    st.subheader("2. Détails de la visite")
+    hopital_saisi = st.text_input("Saisissez le nom complet de l'hôpital consulté")
+    
+    # IMPORTANT : Le sélecteur de service est HORS du formulaire pour l'interactivité
+    service_f = st.selectbox("Sélectionnez le service que vous avez fréquenté", 
+                            ["Services d'Urgence et Diagnostic", 
+                             "Services de Médecine", 
+                             "Chirurgie et Soins Intensifs", 
+                             "Services Supports et Techniques"])
+
+    st.divider()
+
+    # 3. Questionnaire dynamique (Dans le Formulaire pour la validation)
+    with st.form("audit_form_content"):
+        st.subheader(f"📊 Questions spécifiques : {service_f}")
         
-        # CALENDRIER 1915 À 2026
-        dob_f = col_id1.date_input("Date de naissance", 
-                                   min_value=datetime(1915, 1, 1), 
-                                   max_value=datetime(2026, 12, 31),
-                                   value=datetime(1995, 1, 1))
-        contact_f = col_id2.text_input("Contact de référence")
+        if service_f == "Services d'Urgence et Diagnostic":
+            st.radio("Triage : Le temps d'attente avant le premier examen infirmier était-il inférieur à 15 min ?", ["Oui", "Non", "Ne sais pas"])
+            st.radio("Technique : Les équipements d'imagerie (Radio/Scanner) étaient-ils fonctionnels ?", ["Oui", "Non", "En panne"])
+            st.radio("Communication : Avez-vous été informé du délai estimé avant la prise en charge médicale ?", ["Oui", "Non"])
+            st.radio("Sécurité : Votre identité a-t-elle été vérifiée avant tout prélèvement ?", ["Oui", "Non"])
+            st.radio("Orientation : Votre transfert vers un service ou la sortie a-t-il été fluide ?", ["Oui", "Non"])
 
-        st.subheader("2. Établissement et Service")
-        # SAISIE LIBRE
-        hopital_nom = st.text_input("Nom de l'hôpital consulté")
-        service_f = st.selectbox("Sélectionnez le service visité", 
-                                ["Urgence et Diagnostic", "Médecine", "Chirurgie et Soins Intensifs", "Supports et Techniques"])
-
-        st.divider()
-
-        # --- QUESTIONNAIRES SPÉCIFIQUES ---
-        st.subheader(f"3. Questionnaire spécifique : {service_f}")
-
-        if service_f == "Urgence et Diagnostic":
-            st.markdown('<div class="question-card">Triage : Le temps d\'attente avant le premier examen infirmier est-il inférieur à 15 minutes ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Ne sais pas"], key="q1_1")
-            st.markdown('<div class="question-card">Disponibilité technique : Les équipements d\'imagerie (Radio/Scanner) sont-ils fonctionnels au moment de la demande ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Pas tous"], key="q1_2")
-            st.markdown('<div class="question-card">Communication : Avez-vous été informé du délai estimé avant la prise en charge médicale ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non"], key="q1_3")
-            st.markdown('<div class="question-card">Sécurité : Le protocole d\'identification a-t-il été vérifié avant tout prélèvement ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non"], key="q1_4")
-            st.markdown('<div class="question-card">Orientation : Le transfert vers l\'hospitalisation ou la sortie a-t-il été fluide ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Moyennement"], key="q1_5")
-
-        elif service_f == "Médecine":
-            st.markdown('<div class="question-card">Douleur : La douleur est-elle réévaluée après chaque administration de traitement ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Pas systématiquement"], key="q2_1")
-            st.markdown('<div class="question-card">Information : Le médecin a-t-il expliqué le diagnostic et les risques de façon compréhensible ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Très clair", "Partiellement", "Pas du tout"], key="q2_2")
-            st.markdown('<div class="question-card">Hygiène : Le personnel respecte-t-il l\'hygiène des mains avant et après chaque contact ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui, toujours", "Parfois", "Jamais remarqué"], key="q2_3")
-            st.markdown('<div class="question-card">Alimentation : La qualité et la température des repas servis sont-elles satisfaisantes ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Satisfaisant", "Passable", "Médiocre"], key="q2_4")
-            st.markdown('<div class="question-card">Dossier : Les constantes (tension, température) sont-elles relevées au moins 3 fois par jour ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Ne sais pas"], key="q2_5")
+        elif service_f == "Services de Médecine":
+            st.radio("Douleur : Votre douleur était-elle réévaluée après chaque administration de traitement ?", ["Oui", "Non", "Parfois"])
+            st.radio("Information : Le médecin a-t-il expliqué le diagnostic de façon compréhensible ?", ["Très clair", "Partiellement", "Pas du tout"])
+            st.radio("Hygiène : Le personnel a-t-il désinfecté ses mains avant et après vous avoir touché ?", ["Toujours", "Souvent", "Jamais remarqué"])
+            st.radio("Alimentation : La qualité et la température des repas étaient-elles satisfaisantes ?", ["Satisfaisant", "Passable", "Médiocre"])
+            st.radio("Dossier : Vos constantes (tension, température) étaient-elles relevées 3 fois par jour ?", ["Oui", "Non", "Ne sais pas"])
 
         elif service_f == "Chirurgie et Soins Intensifs":
-            st.markdown('<div class="question-card">Check-list : La check-list "Sécurité du patient au bloc" a-t-elle été remplie pour l\'intervention ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Ne sais pas"], key="q3_1")
-            st.markdown('<div class="question-card">Consentement : Le formulaire de consentement éclairé était-il signé avant l\'anesthésie ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non"], key="q3_2")
-            st.markdown('<div class="question-card">Vigilance : Le ratio infirmier/patient permettait-il une surveillance constante ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Passable"], key="q3_3")
-            st.markdown('<div class="question-card">Stérilisation : La traçabilité de la stérilisation a-t-elle été vérifiée devant vous ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Je ne sais pas"], key="q3_4")
-            st.markdown('<div class="question-card">Infections : Un suivi des infections nosocomiales a-t-il été mentionné ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non"], key="q3_5")
+            st.radio("Check-list : La check-list 'Sécurité du patient' a-t-elle été remplie pour l'intervention ?", ["Oui", "Non", "Ne sais pas"])
+            st.radio("Consentement : Le formulaire de consentement éclairé était-il signé avant l'anesthésie ?", ["Oui", "Non"])
+            st.radio("Surveillance : Le nombre d'infirmiers permettait-il une surveillance constante ?", ["Oui", "Non", "Moyen"])
+            st.radio("Stérilisation : La traçabilité de la stérilisation a-t-elle été vérifiée avant l'ouverture des boîtes ?", ["Oui", "Non"])
+            st.radio("Infections : Existe-t-il un suivi des infections après l'intervention ?", ["Oui", "Non", "Je ne sais pas"])
 
-        elif service_f == "Supports et Techniques":
-            st.markdown('<div class="question-card">Pharmacie : Le taux de disponibilité des médicaments essentiels était-il suffisant (>90%) ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non, ruptures fréquentes"], key="q4_1")
-            st.markdown('<div class="question-card">Maintenance : Les groupes électrogènes et réserves d\'eau sont-ils testés ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Ne sais pas"], key="q4_2")
-            st.markdown('<div class="question-card">Propreté : Les sanitaires sont-ils nettoyés au moins deux fois par jour ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Rarement"], key="q4_3")
-            st.markdown('<div class="question-card">Facturation : La facture est-elle détaillée et expliquée de manière transparente ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non", "Moyennement"], key="q4_4")
-            st.markdown('<div class="question-card">Confidentialité : La discrétion de vos données a-t-elle été garantie à l\'accueil ?</div>', unsafe_allow_html=True)
-            st.radio("Réponse :", ["Oui", "Non"], key="q4_5")
+        elif service_f == "Services Supports et Techniques":
+            st.radio("Pharmacie : La disponibilité des médicaments essentiels était-elle supérieure à 90% ?", ["Oui", "Non, ruptures"])
+            st.radio("Maintenance : Les groupes électrogènes et réserves d'eau sont-ils fonctionnels ?", ["Oui", "Non", "Ne sais pas"])
+            st.markdown("Propreté : Les sanitaires étaient-ils nettoyés au moins deux fois par jour ?")
+            st.radio("Réponse :", ["Propre", "Passable", "Sale"], key="clean")
+            st.radio("Facturation : La facture était-elle détaillée et expliquée de manière transparente ?", ["Oui", "Non", "Partiellement"])
+            st.radio("Confidentialité : Le personnel garantit-il la discrétion de vos données à l'admission ?", ["Oui", "Non"])
 
         st.divider()
-        note_finale = st.select_slider("Note globale de satisfaction pour cette visite (1 à 5)", options=[1, 2, 3, 4, 5])
-        
+        note_f = st.select_slider("Note globale de satisfaction pour cette visite (1 à 5)", options=[1, 2, 3, 4, 5])
+        avis_f = st.text_area("Des suggestions pour cet hôpital ?")
+
         if st.form_submit_button("VALIDER ET ENVOYER LE FORMULAIRE"):
-            if not hopital_nom:
+            if not hopital_saisi:
                 st.error("Veuillez saisir le nom de l'établissement.")
             else:
                 conn = sqlite3.connect('patient_plus_final.db'); c = conn.cursor()
                 c.execute('INSERT INTO formulaires (user, hopital, service, note, date) VALUES (?,?,?,?,?)', 
-                          (st.session_state.user_connecte, hopital_nom, service_f, note_finale, datetime.now().strftime("%Y-%m-%d")))
+                          (st.session_state.user_connecte, hopital_saisi, service_f, note_f, datetime.now().strftime("%Y-%m-%d")))
                 conn.commit(); conn.close()
-                st.success("Formulaire transmis avec succès !")
+                st.success("Formulaire transmis avec succès ! Merci pour votre contribution.")
                 st.balloons()
                 naviguer("Stats"); st.rerun()
